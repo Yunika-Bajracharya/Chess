@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# Stuff
+build
+Makefile*
+cmake_install.cmake*
+CMakeFiles*
+CMakeCache.txt*
+notes.md*
+Chess.exe*
+Chess*
+.cache
+*.dll
