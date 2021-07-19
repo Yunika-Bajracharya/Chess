@@ -32,9 +32,6 @@
 *.app
 
 # Stuff
-build
-lib
-include
 Makefile*
 cmake_install.cmake*
 CMakeFiles*
