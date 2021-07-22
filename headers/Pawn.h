@@ -6,7 +6,7 @@ public:
   ~Pawn();
 
   int getTextureRow();
-  void move();
+  void generateLegalMoves();
 
 private:
   int textureRow;

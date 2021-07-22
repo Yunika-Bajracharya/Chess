@@ -6,7 +6,7 @@ public:
   Piece(Coordinate pos, bool isColorWhite);
   ~Piece();
 
-  virtual void move() = 0;
+  virtual void generateLegalMoves() = 0;
   virtual int getTextureRow() = 0;
 
   Coordinate getCoordinate();

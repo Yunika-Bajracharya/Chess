@@ -17,6 +17,9 @@ public:
 private:
   BoardState state;
   Coordinate boardStartPos;
+
   Player *players[2];
-  SDL_Texture *pieceTextures;
+
+  SDL_Texture *playerNamesTexture[2];
+  SDL_Texture *pieceTexture;
 };

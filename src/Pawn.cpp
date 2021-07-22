@@ -8,4 +8,4 @@ Pawn::~Pawn() {}
 
 int Pawn::getTextureRow() { return textureRow; }
 
-void Pawn::move() {}
+void Pawn::generateLegalMoves() {}

@@ -35,6 +35,11 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
              Mix_GetError());
     }
 
+    if (TTF_Init() == -1) {
+      printf("TTF_Init: %s\n", TTF_GetError());
+      exit(2);
+    }
+
     isRunning = true;
     state = GameInfo::menu;
 

@@ -10,7 +10,7 @@ file (GLOB source_files "${source_dir}/*.cpp")
 
 add_executable(${PROJECT_NAME} ${source_files})
 if(UNIX) 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -g -std=c++14 -lSDL2 -lGL -lSDL2_image -lSDL2_mixer")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -g -std=c++14 -lSDL2 -lGL -lSDL2_image -lSDL2_mixer -lSDL2_ttf")
 
 elseif(WIN32)
     # for the vs compiler
