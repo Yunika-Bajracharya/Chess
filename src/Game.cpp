@@ -1,6 +1,8 @@
 #include "../headers/Game.h"
+#include "../headers/Gameboard.h"
 
 SDL_Renderer *Game::renderer = nullptr;
+Gameboard *board = nullptr;
 
 Game::Game() {}
 
@@ -34,6 +36,9 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     }
 
     isRunning = true;
+    state = GameInfo::menu;
+
+    board = new Gameboard();
   } else {
     isRunning = false;
   }
@@ -68,6 +73,7 @@ void Game::render() {
   SDL_RenderClear(renderer);
 
   // TODO
+  board->render();
 
   SDL_RenderPresent(renderer);
 }

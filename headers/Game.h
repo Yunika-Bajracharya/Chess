@@ -6,9 +6,17 @@
 
 #include <iostream>
 
+namespace GameInfo {
+enum State {
+  menu,    // Display menu
+  board,   // Display Board
+  gameover // Display Gameover
+};
+};
 
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
+#define BLOCK_WIDTH 80
 
 class Game {
 
@@ -32,5 +40,6 @@ private:
   bool isRunning;
   SDL_Window *window;
 
+  GameInfo::State state;
   int count = 0;
 };

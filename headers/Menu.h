@@ -1,0 +1,4 @@
+class Menu {
+public:
+private:
+};
