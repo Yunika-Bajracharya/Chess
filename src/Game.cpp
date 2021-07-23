@@ -1,4 +1,5 @@
 #include "../headers/Game.h"
+#include "../headers/GameMenu.h"
 #include "../headers/Gameboard.h"
 
 SDL_Renderer *Game::renderer = nullptr;
@@ -43,9 +44,10 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     isRunning = true;
     state = GameInfo::menu;
 
-    board = new Gameboard();
     // board->init();
-    stateMachine.AddState(board);
+    stateMachine.AddState(new GameMenu(this));
+    // stateMachine.ProcessStateChanges();
+    // stateMachine.AddState(new Gameboard(), false);
   } else {
     isRunning = false;
   }
@@ -94,3 +96,5 @@ void Game::clean() {
 }
 
 bool Game::running() { return isRunning; }
+
+void Game::createGameBoard() { stateMachine.AddState(new Gameboard(), true); }

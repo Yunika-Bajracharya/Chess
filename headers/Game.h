@@ -38,6 +38,8 @@ public:
 
   static SDL_Renderer *renderer;
 
+  void createGameBoard();
+
 private:
   bool isRunning;
   SDL_Window *window;
