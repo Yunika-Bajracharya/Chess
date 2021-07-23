@@ -1,4 +1,5 @@
 #include "../headers/Gameboard.h"
+#include "../headers/Engine.h"
 
 Gameboard::Gameboard() {}
 
@@ -29,7 +30,7 @@ void Gameboard::init() {
   }
 
   // Handle FEN string
-  handleFENString("");
+  Engine::handleFENString("", state, players);
 
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
@@ -116,9 +117,3 @@ void Gameboard::handleInput(SDL_Event &event) {
 }
 void Gameboard::pause() {}
 void Gameboard::resume() {}
-
-void Gameboard::handleFENString(std::string fenString) {
-  // TODO
-  players[0]->pieces.push_back(new Pawn({2, 3}, true));
-  players[1]->pieces.push_back(new Pawn({5, 3}, players[1]->isWhite()));
-}

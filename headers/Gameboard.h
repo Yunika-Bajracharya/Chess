@@ -3,7 +3,9 @@
 #include "Game.h"
 #include "Player.h"
 
+#include "King.h"
 #include "Pawn.h"
+
 #include "TextureManager.h"
 
 #include "GameState.h"
@@ -14,8 +16,6 @@ public:
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
-
-  void handleFENString(std::string fenString);
 
   // Handle events
   void handleInput(SDL_Event &event) override;

@@ -7,9 +7,10 @@ public:
   virtual ~Piece();
 
   virtual void generateLegalMoves() = 0;
-  virtual int
-  getTextureColumn() = 0; // The column refers to Gameboard.pieceTexture
 
+  int getTextureColumn(); // The column refers to Gameboard.pieceTexture
+
+  int getID();
   Coordinate getCoordinate();
   bool isWhite();
 
@@ -17,4 +18,5 @@ protected:
   int id;
   Coordinate position;
   bool isColorWhite;
+  int textureColumn;
 };

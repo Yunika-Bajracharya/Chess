@@ -3,6 +3,7 @@
 #include "Structures.h"
 
 class Gameboard;
+class Engine;
 class Player {
 public:
   Player(std::string playerName, bool isPlayerColorWhite);
@@ -11,6 +12,7 @@ public:
   bool isWhite();
   // void addPiece(Piece *p);
   friend class Gameboard;
+  friend class Engine;
 
 private:
   std::string Name;

@@ -6,6 +6,4 @@ Pawn::Pawn(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
 
 Pawn::~Pawn() {}
 
-int Pawn::getTextureColumn() { return textureColumn; }
-
 void Pawn::generateLegalMoves() {}

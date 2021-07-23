@@ -13,3 +13,7 @@ Piece::~Piece() {}
 Coordinate Piece::getCoordinate() { return position; }
 
 bool Piece::isWhite() { return isColorWhite; }
+
+int Piece::getTextureColumn() { return textureColumn; }
+
+int Piece::getID() { return id; }
