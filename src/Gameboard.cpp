@@ -1,6 +1,17 @@
 #include "../headers/Gameboard.h"
 
-Gameboard::Gameboard() {
+Gameboard::Gameboard() {}
+
+Gameboard::~Gameboard() {
+  SDL_DestroyTexture(playerNamesTexture[0]);
+  SDL_DestroyTexture(playerNamesTexture[1]);
+  SDL_DestroyTexture(pieceTexture);
+
+  delete players[0];
+  delete players[1];
+}
+
+void Gameboard::init() {
   state = BoardState();
 
   // Some stuff here
@@ -38,6 +49,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
   } else if (event.button.button == SDL_BUTTON_RIGHT) {
   }
 }
+
 void Gameboard::handleMouseUp(SDL_Event &event) {}
 
 void Gameboard::update() {}
@@ -90,6 +102,20 @@ void Gameboard::render() {
     SDL_RenderCopy(Game::renderer, playerNamesTexture[i], NULL, &destRect);
   }
 }
+
+// TODO
+void Gameboard::handleInput(SDL_Event &event) {
+  switch (event.type) {
+  case SDL_MOUSEBUTTONDOWN:
+    handleMouseDown(event);
+    break;
+  case SDL_MOUSEBUTTONUP:
+    handleMouseUp(event);
+    break;
+  }
+}
+void Gameboard::pause() {}
+void Gameboard::resume() {}
 
 void Gameboard::handleFENString(std::string fenString) {
   // TODO

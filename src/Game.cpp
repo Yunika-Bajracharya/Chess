@@ -44,6 +44,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     state = GameInfo::menu;
 
     board = new Gameboard();
+    // board->init();
+    stateMachine.AddState(board);
   } else {
     isRunning = false;
   }
@@ -59,28 +61,25 @@ void Game::handleEvents() {
     break;
   }
 
-  case SDL_MOUSEBUTTONDOWN: {
-    board->handleMouseDown(event);
-    break;
-  }
-  case SDL_MOUSEBUTTONUP: {
-    board->handleMouseUp(event);
-    break;
-  }
-
   default:
+    stateMachine.GetActiveState()->handleInput(event);
     break;
   };
 }
 
-void Game::update() { count++; }
+void Game::update() {
+  count++;
+  stateMachine.ProcessStateChanges();
+}
 void Game::render() {
 
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderClear(renderer);
 
   // TODO
-  board->render();
+  // board->render();
+
+  stateMachine.GetActiveState()->render();
 
   SDL_RenderPresent(renderer);
 }

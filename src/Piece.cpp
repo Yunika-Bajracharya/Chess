@@ -3,6 +3,7 @@
 Piece::Piece(Coordinate pos, bool isColorWhite) : position(pos) {
   static int pieceID = 1;
   this->isColorWhite = isColorWhite;
+
   id = pieceID;
   pieceID++;
 }

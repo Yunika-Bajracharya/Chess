@@ -5,6 +5,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "StateMachine.h"
 #include <iostream>
 
 namespace GameInfo {
@@ -42,5 +43,6 @@ private:
   SDL_Window *window;
 
   GameInfo::State state;
+  StateMachine stateMachine;
   int count = 0;
 };

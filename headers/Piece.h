@@ -4,7 +4,7 @@
 class Piece {
 public:
   Piece(Coordinate pos, bool isColorWhite);
-  ~Piece();
+  virtual ~Piece();
 
   virtual void generateLegalMoves() = 0;
   virtual int

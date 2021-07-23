@@ -6,19 +6,27 @@
 #include "Pawn.h"
 #include "TextureManager.h"
 
-class Gameboard {
+#include "GameState.h"
+
+class Gameboard : public GameState {
 public:
   Gameboard();
-  ~Gameboard();
+  ~Gameboard() override;
+
+  void init() override; // Loads all the textures, creates players, etc
 
   void handleFENString(std::string fenString);
 
   // Handle events
+  void handleInput(SDL_Event &event) override;
   void handleMouseDown(SDL_Event &event);
   void handleMouseUp(SDL_Event &event);
 
-  void update();
-  void render();
+  void update() override;
+  void render() override;
+
+  void pause() override;
+  void resume() override;
 
 private:
   BoardState state;
