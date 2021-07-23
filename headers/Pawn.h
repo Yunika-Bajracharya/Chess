@@ -5,9 +5,9 @@ public:
   Pawn(Coordinate pos, bool isColorWhite);
   ~Pawn();
 
-  int getTextureRow();
+  int getTextureColumn();
   void generateLegalMoves();
 
 private:
-  int textureRow;
+  int textureColumn; // Refers to the column of BoardState.pieceTexture
 };

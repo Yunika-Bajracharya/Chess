@@ -1,11 +1,11 @@
 #include "../headers/Pawn.h"
 
 Pawn::Pawn(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
-  textureRow = 5;
+  textureColumn = 5;
 }
 
 Pawn::~Pawn() {}
 
-int Pawn::getTextureRow() { return textureRow; }
+int Pawn::getTextureColumn() { return textureColumn; }
 
 void Pawn::generateLegalMoves() {}

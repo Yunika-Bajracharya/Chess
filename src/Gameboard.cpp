@@ -18,19 +18,36 @@ Gameboard::Gameboard() {
   }
 
   // Handle FEN string
-  players[0]->pieces.push_back(new Pawn({2, 3}, true));
-  players[1]->pieces.push_back(new Pawn({5, 3}, players[1]->isWhite()));
+  handleFENString("");
 
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
 }
 
+void Gameboard::handleMouseDown(SDL_Event &event) {
+  int x = event.button.x - boardStartPos.j;
+  int y = event.button.y - boardStartPos.i;
+
+  Coordinate location = {x / BLOCK_WIDTH, y / BLOCK_WIDTH};
+
+  if (event.button.button == SDL_BUTTON_LEFT) {
+    if (location.isValidBoardIndex()) {
+      location.display();
+    }
+
+  } else if (event.button.button == SDL_BUTTON_RIGHT) {
+  }
+}
+void Gameboard::handleMouseUp(SDL_Event &event) {}
+
+void Gameboard::update() {}
+
 void Gameboard::render() {
 
-  // Render board
-  SDL_Rect destRect;
-  SDL_Rect srcRect;
+  SDL_Rect destRect; // where to render
+  SDL_Rect srcRect;  // from where we render
 
+  // Render board
   destRect.h = destRect.w = BLOCK_WIDTH;
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
@@ -53,8 +70,9 @@ void Gameboard::render() {
       destRect.x = boardStartPos.j + tempCoordinate.j * BLOCK_WIDTH;
       destRect.y = boardStartPos.i + tempCoordinate.i * BLOCK_WIDTH;
 
+      // If white lower row, if black upper row
       srcRect.y = (piece->isWhite()) ? 0 : srcRect.h;
-      srcRect.x = piece->getTextureRow() * 200;
+      srcRect.x = piece->getTextureColumn() * srcRect.h;
 
       SDL_RenderCopy(Game::renderer, pieceTexture, &srcRect, &destRect);
     }
@@ -64,8 +82,17 @@ void Gameboard::render() {
   destRect.x = WINDOW_WIDTH / 2 + 5 * BLOCK_WIDTH;
   for (int i = 0; i < 2; i++) {
     destRect.y = (i == 0) ? 0.1 * WINDOW_HEIGHT : 0.8 * WINDOW_HEIGHT;
+
+    // Gets the size of font width and height
     SDL_QueryTexture(playerNamesTexture[i], NULL, NULL, &destRect.w,
                      &destRect.h);
+
     SDL_RenderCopy(Game::renderer, playerNamesTexture[i], NULL, &destRect);
   }
+}
+
+void Gameboard::handleFENString(std::string fenString) {
+  // TODO
+  players[0]->pieces.push_back(new Pawn({2, 3}, true));
+  players[1]->pieces.push_back(new Pawn({5, 3}, players[1]->isWhite()));
 }

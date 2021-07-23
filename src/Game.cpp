@@ -60,9 +60,11 @@ void Game::handleEvents() {
   }
 
   case SDL_MOUSEBUTTONDOWN: {
+    board->handleMouseDown(event);
     break;
   }
   case SDL_MOUSEBUTTONUP: {
+    board->handleMouseUp(event);
     break;
   }
 
