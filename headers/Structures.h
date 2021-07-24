@@ -16,4 +16,25 @@ struct Coordinate {
   void display() {
     std::cout << "Pos: (" << i << ", " << j << ")" << std::endl;
   }
+
+  bool operator==(Coordinate c) {
+    if (c.i == i && c.j == j) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool operator!=(Coordinate c) {
+    if (c.i != i || c.j != j) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+struct Move {
+  Coordinate startPos;
+  Coordinate endPos;
 };

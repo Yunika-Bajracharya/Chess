@@ -14,5 +14,8 @@ struct BoardState {
 
   bool isWhiteTurn; // True if it's white's turn
 
-  int dragPieceId;
+  int dragPieceId;              // Stores the id of the piece being dragged
+  Coordinate dragPieceLocation; // Stores the locaiton of the grid
+
+  Piece *getPiece(Coordinate location) { return board[location.i][location.j]; }
 };

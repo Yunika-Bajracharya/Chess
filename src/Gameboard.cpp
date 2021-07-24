@@ -37,21 +37,37 @@ void Gameboard::init() {
 }
 
 void Gameboard::handleMouseDown(SDL_Event &event) {
+  // Extract Location
   int x = event.button.x - boardStartPos.j;
   int y = event.button.y - boardStartPos.i;
-
-  Coordinate location = {x / BLOCK_WIDTH, y / BLOCK_WIDTH};
+  Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
   if (event.button.button == SDL_BUTTON_LEFT) {
     if (location.isValidBoardIndex()) {
       location.display();
+      Piece *piece = state.getPiece(location);
+      if (piece) {
+        state.dragPieceId = piece->getID();
+        state.dragPieceLocation = location;
+        piece->generateLegalMoves();
+      }
     }
 
   } else if (event.button.button == SDL_BUTTON_RIGHT) {
   }
 }
 
-void Gameboard::handleMouseUp(SDL_Event &event) {}
+void Gameboard::handleMouseUp(SDL_Event &event) {
+  // Extract loaction
+  int x = event.button.x - boardStartPos.j;
+  int y = event.button.y - boardStartPos.i;
+  Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
+
+  if (event.button.button == SDL_BUTTON_LEFT) {
+    Engine::handlePiecePlacement(location, state, moves);
+  }
+  state.dragPieceId = 0;
+}
 
 void Gameboard::update() {}
 
@@ -79,15 +95,24 @@ void Gameboard::render() {
   srcRect.h = srcRect.w = 200;
   for (int i = 0; i < 2; i++) {
     for (Piece *piece : players[i]->pieces) {
-      Coordinate tempCoordinate = piece->getCoordinate();
-      destRect.x = boardStartPos.j + tempCoordinate.j * BLOCK_WIDTH;
-      destRect.y = boardStartPos.i + tempCoordinate.i * BLOCK_WIDTH;
-
       // If white lower row, if black upper row
       srcRect.y = (piece->isWhite()) ? 0 : srcRect.h;
       srcRect.x = piece->getTextureColumn() * srcRect.h;
 
-      SDL_RenderCopy(Game::renderer, pieceTexture, &srcRect, &destRect);
+      if (piece->getID() == state.dragPieceId) {
+        SDL_GetMouseState(&destRect.x, &destRect.y);
+        destRect.x -= destRect.w / 2;
+        destRect.y -= destRect.h / 2;
+
+        SDL_RenderCopy(Game::renderer, pieceTexture, &srcRect, &destRect);
+
+      } else {
+        Coordinate tempCoordinate = piece->getCoordinate();
+        destRect.x = boardStartPos.j + tempCoordinate.j * BLOCK_WIDTH;
+        destRect.y = boardStartPos.i + tempCoordinate.i * BLOCK_WIDTH;
+
+        SDL_RenderCopy(Game::renderer, pieceTexture, &srcRect, &destRect);
+      }
     }
   }
 
