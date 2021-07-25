@@ -4,6 +4,7 @@
 
 SDL_Renderer *Game::renderer = nullptr;
 Gameboard *board = nullptr;
+GameMenu *menu = nullptr;
 
 Game::Game() {}
 
@@ -42,12 +43,16 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     }
 
     isRunning = true;
-    state = GameInfo::menu;
+
 
     // board->init();
     stateMachine.AddState(new GameMenu(this));
+    // stateMachine.AddState(new GameMenu());
     // stateMachine.ProcessStateChanges();
     // stateMachine.AddState(new Gameboard(), false);
+    // board = new Gameboard();
+    // board->init();
+
   } else {
     isRunning = false;
   }
@@ -71,7 +76,9 @@ void Game::handleEvents() {
 
 void Game::update() {
   count++;
-  stateMachine.ProcessStateChanges();
+  // stateMachine.ProcessStateChanges();
+  // board->update();
+  stateMachine.GetActiveState()->update();
 }
 void Game::render() {
 
@@ -82,6 +89,7 @@ void Game::render() {
   // board->render();
 
   stateMachine.GetActiveState()->render();
+  // board->render();
 
   SDL_RenderPresent(renderer);
 }
