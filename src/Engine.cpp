@@ -13,7 +13,7 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
   addPiece(new Pawn({2, 3}, true), state, players);
   addPiece(new King({4, 2}, true), state, players);
   addPiece(new Pawn({5, 3}, false), state, players);
-  addPiece(new Queen({4, 7}, false), state, players);
+  addPiece(new Rook({4, 6}, false), state, players);
 }
 
 void Engine::addPiece(Piece *piece, BoardState &state, Player *players[2]) {
@@ -27,7 +27,7 @@ void Engine::addPiece(Piece *piece, BoardState &state, Player *players[2]) {
 }
 
 void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                  std::vector<Move> moves) {
+                                  const std::vector<Move> moves) {
 
   for (Move move : moves) {
     if (move.endPos == destination) {
@@ -46,6 +46,8 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
 
       state.board[startPos.i][startPos.j] = nullptr;
       state.board[destination.i][destination.j] = movingPiece;
+
+      movingPiece->moveTo(destination);
     }
   }
 }

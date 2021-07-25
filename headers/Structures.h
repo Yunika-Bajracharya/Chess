@@ -32,6 +32,19 @@ struct Coordinate {
       return false;
     }
   }
+
+  Coordinate operator+(Coordinate c) {
+    Coordinate temp;
+    temp.i = i + c.i;
+    temp.j = i + c.j;
+    return temp;
+  }
+
+  Coordinate operator+=(Coordinate c) {
+    i += c.i;
+    j += c.j;
+    return *this;
+  }
 };
 
 struct Move {

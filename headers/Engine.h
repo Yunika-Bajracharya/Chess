@@ -9,7 +9,7 @@ public:
    */
 
   static void handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                   std::vector<Move> moves);
+                                   const std::vector<Move> moves);
 
 private:
   static void addPiece(Piece *piece, BoardState &state, Player *players[2]);

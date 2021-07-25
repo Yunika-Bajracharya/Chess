@@ -49,7 +49,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
       if (piece) {
         state.dragPieceId = piece->getID();
         state.dragPieceLocation = location;
-        piece->generateLegalMoves();
+        piece->generateLegalMoves(state, moves);
       }
     }
 
@@ -65,6 +65,7 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
 
   if (event.button.button == SDL_BUTTON_LEFT) {
     Engine::handlePiecePlacement(location, state, moves);
+    moves.clear();
   }
   state.dragPieceId = 0;
 }
@@ -115,6 +116,19 @@ void Gameboard::render() {
       }
     }
   }
+
+  // Highlight all the possible moes
+  for (Move move : moves) {
+    destRect.x = boardStartPos.j + move.endPos.j * BLOCK_WIDTH;
+    destRect.y = boardStartPos.i + move.endPos.i * BLOCK_WIDTH;
+
+    SDL_SetRenderDrawColor(Game::renderer, 255, 0, 0, 150);
+    SDL_RenderFillRect(Game::renderer, &destRect);
+  }
+
+  /*
+   * We change the size of destRect from here, be careful
+   */
 
   // Render Player Names
   destRect.x = WINDOW_WIDTH / 2 + 5 * BLOCK_WIDTH;

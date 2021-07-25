@@ -6,6 +6,8 @@ public:
   ~Rook() override;
 
   void generateLegalMoves() override;
+  void generateLegalMoves(const BoardState &state,
+                          std::vector<Move> &moves) override;
 
 private:
 };
