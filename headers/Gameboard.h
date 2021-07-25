@@ -5,6 +5,7 @@
 
 #include "King.h"
 #include "Pawn.h"
+#include "Queen.h"
 
 #include "TextureManager.h"
 

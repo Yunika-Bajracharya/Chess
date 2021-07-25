@@ -3,7 +3,9 @@
 class King : public Piece {
 public:
   King(Coordinate pos, bool isColorWhite);
+  ~King() override;
 
-  ~King();
   void generateLegalMoves() override;
+
+private:
 };

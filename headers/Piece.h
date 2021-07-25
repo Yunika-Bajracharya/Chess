@@ -14,6 +14,9 @@ public:
   Coordinate getCoordinate();
   bool isWhite();
 
+  static Coordinate slideDirection[8];
+  static Coordinate knightDirection[8];
+
 protected:
   int id;
   Coordinate position;
