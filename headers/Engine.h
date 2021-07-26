@@ -1,4 +1,7 @@
 #include "Gameboard.h"
+#include "Structures.h"
+#define ASCII_OFFSET 48
+
 class Engine {
 public:
   static void handleFENString(std::string fenString, BoardState &state,

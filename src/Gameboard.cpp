@@ -1,5 +1,6 @@
 #include "../headers/Gameboard.h"
 #include "../headers/Engine.h"
+#define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 Gameboard::Gameboard() {}
 
@@ -30,8 +31,8 @@ void Gameboard::init() {
   }
 
   // Handle FEN string
-  Engine::handleFENString("", state, players);
-
+  Engine::handleFENString(STARTING_FEN, state, players);
+  
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
 }
