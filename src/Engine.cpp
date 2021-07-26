@@ -10,9 +10,9 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
   }
 
   // TODO
-  addPiece(new Pawn({2, 3}, true), state, players);
+  addPiece(new Queen({2, 3}, true), state, players);
   addPiece(new King({4, 2}, true), state, players);
-  addPiece(new Pawn({5, 3}, false), state, players);
+  addPiece(new Bishop({5, 3}, false), state, players);
   addPiece(new Rook({4, 6}, false), state, players);
 }
 

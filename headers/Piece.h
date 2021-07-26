@@ -29,3 +29,16 @@ protected:
   bool isColorWhite;
   int textureColumn;
 };
+
+class SlidePiece : public Piece {
+public:
+  SlidePiece(Coordinate pos, bool isColorWhite);
+  ~SlidePiece();
+
+  void generateLegalMoves();
+  void generateLegalMoves(const BoardState &state, std::vector<Move> &moves);
+
+protected:
+  int loopStartIndex;
+  int loopStopIndex;
+};

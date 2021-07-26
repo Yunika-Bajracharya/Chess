@@ -1,11 +1,8 @@
 #include "Piece.h"
 
-class Bishop : public Piece {
+class Bishop : public SlidePiece {
 public:
   Bishop(Coordinate pos, bool isColorWhite);
-  ~Bishop() override;
-
-  void generateLegalMoves() override;
 
 private:
 };

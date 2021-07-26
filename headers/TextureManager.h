@@ -8,4 +8,6 @@ public:
   static void Draw(SDL_Texture *tex, SDL_Rect &src, SDL_Rect &dest);
 
   static SDL_Texture *loadSentence(const char *sentence);
+
+  static void DrawFillCircle(SDL_Renderer *renderer, int x, int y, int radius);
 };

@@ -92,6 +92,24 @@ void Gameboard::render() {
     }
   }
 
+  // Highlight all the possible moes
+  for (Move move : moves) {
+    destRect.x = boardStartPos.j + move.endPos.j * BLOCK_WIDTH;
+    destRect.y = boardStartPos.i + move.endPos.i * BLOCK_WIDTH;
+
+    SDL_SetRenderDrawColor(Game::renderer, 100, 255, 0, 255);
+    // SDL_RenderFillRect(Game::renderer, &destRect);
+
+    // For rendering circles
+
+    // Find center
+    destRect.x += BLOCK_WIDTH / 2;
+    destRect.y += BLOCK_WIDTH / 2;
+
+    TextureManager::DrawFillCircle(Game::renderer, destRect.x, destRect.y,
+                                   BLOCK_WIDTH / 8);
+  }
+
   // Render all white's pieces
   srcRect.h = srcRect.w = 200;
   for (int i = 0; i < 2; i++) {
@@ -115,15 +133,6 @@ void Gameboard::render() {
         SDL_RenderCopy(Game::renderer, pieceTexture, &srcRect, &destRect);
       }
     }
-  }
-
-  // Highlight all the possible moes
-  for (Move move : moves) {
-    destRect.x = boardStartPos.j + move.endPos.j * BLOCK_WIDTH;
-    destRect.y = boardStartPos.i + move.endPos.i * BLOCK_WIDTH;
-
-    SDL_SetRenderDrawColor(Game::renderer, 255, 0, 0, 150);
-    SDL_RenderFillRect(Game::renderer, &destRect);
   }
 
   /*

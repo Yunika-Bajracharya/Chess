@@ -1,11 +1,8 @@
 #include "Piece.h"
 
-class Queen : public Piece {
+class Queen : public SlidePiece {
 public:
   Queen(Coordinate pos, bool isColorWhite);
-  ~Queen() override;
-
-  void generateLegalMoves() override;
 
 private:
 };

@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Player.h"
 
+#include "Bishop.h"
 #include "King.h"
 #include "Pawn.h"
 #include "Queen.h"

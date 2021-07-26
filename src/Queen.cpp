@@ -1,9 +1,9 @@
 #include "../headers/Queen.h"
 
-Queen::Queen(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
+Queen::Queen(Coordinate pos, bool isColorWhite)
+    : SlidePiece(pos, isColorWhite) {
+
   textureColumn = 1;
+  loopStartIndex = 0;
+  loopStopIndex = 8;
 }
-
-Queen::~Queen() {}
-
-void Queen::generateLegalMoves() {}
