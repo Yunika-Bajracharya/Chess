@@ -1,8 +1,11 @@
 #include "../headers/Piece.h"
+#include "../headers/BoardState.h"
 
 Piece::Piece(Coordinate pos, bool isColorWhite) : position(pos) {
   static int pieceID = 1;
   this->isColorWhite = isColorWhite;
+
+  captured = false;
 
   id = pieceID;
   pieceID++;
@@ -29,6 +32,9 @@ void Piece::moveTo(Coordinate destination) { this->position = destination; }
 void Piece::generateLegalMoves(const BoardState &state,
                                std::vector<Move> &moves) {}
 
+void Piece::getCaptured() { captured = true; }
+bool Piece::isCaptured() { return captured; }
+
 /*
  *  For class slidePiece
  */
@@ -47,12 +53,28 @@ void SlidePiece::generateLegalMoves(const BoardState &state,
     tempPos += slideDirectionOffset[i];
 
     while (tempPos.isValidBoardIndex()) {
+
+      bool captureTime = false;
+      if (!state.isEmpty(tempPos)) {
+        bool landingColor = state.isPieceWhite(tempPos);
+        // If landing color is equal to the piece's color
+        if (landingColor == isColorWhite) {
+          break;
+        } else {
+          captureTime = true;
+        }
+      }
+
       Move m;
       m.startPos = position;
       m.endPos = tempPos;
       moves.push_back(m);
 
       tempPos += slideDirectionOffset[i];
+
+      if (captureTime) {
+        break;
+      }
     }
   }
 }

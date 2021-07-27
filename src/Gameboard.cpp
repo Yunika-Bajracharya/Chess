@@ -97,23 +97,40 @@ void Gameboard::render() {
     destRect.x = boardStartPos.j + move.endPos.j * BLOCK_WIDTH;
     destRect.y = boardStartPos.i + move.endPos.i * BLOCK_WIDTH;
 
-    SDL_SetRenderDrawColor(Game::renderer, 100, 255, 0, 255);
-    // SDL_RenderFillRect(Game::renderer, &destRect);
+    if (state.isEmpty(move.endPos)) {
+      SDL_SetRenderDrawColor(Game::renderer, 100, 255, 0, 255);
 
-    // For rendering circles
+      // For rendering circles
 
-    // Find center
-    destRect.x += BLOCK_WIDTH / 2;
-    destRect.y += BLOCK_WIDTH / 2;
+      // Find center
+      destRect.x += BLOCK_WIDTH / 2;
+      destRect.y += BLOCK_WIDTH / 2;
 
-    TextureManager::DrawFillCircle(Game::renderer, destRect.x, destRect.y,
-                                   BLOCK_WIDTH / 8);
+      TextureManager::DrawFillCircle(Game::renderer, destRect.x, destRect.y,
+                                     BLOCK_WIDTH / 8);
+    } else {
+      SDL_SetRenderDrawColor(Game::renderer, 255, 0, 0, 180);
+      SDL_RenderFillRect(Game::renderer, &destRect);
+    }
   }
 
-  // Render all white's pieces
+  // Render all pieces
+  /*
+   * TODO: BUG
+   * If you try to move the white's queen on top of black's bishop
+   * the queen is rendered below the bishop
+   * TODO: Make it so that piece being dragged is rendered after all pieces are
+   * rendered
+   */
+
   srcRect.h = srcRect.w = 200;
   for (int i = 0; i < 2; i++) {
     for (Piece *piece : players[i]->pieces) {
+      // If the piece is captured, we skip it
+      if (piece->isCaptured()) {
+        continue;
+      }
+
       // If white lower row, if black upper row
       srcRect.y = (piece->isWhite()) ? 0 : srcRect.h;
       srcRect.x = piece->getTextureColumn() * srcRect.h;

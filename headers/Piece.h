@@ -1,7 +1,7 @@
 #pragma once
 #include "Structures.h"
 
-class BoardState;
+struct BoardState;
 class Piece {
 public:
   Piece(Coordinate pos, bool isColorWhite);
@@ -16,6 +16,9 @@ public:
 
   void moveTo(Coordinate destination); // Moves the piece to the location
 
+  void getCaptured();
+  bool isCaptured();
+
   int getID();
   Coordinate getCoordinate();
   bool isWhite();
@@ -28,6 +31,7 @@ protected:
   Coordinate position;
   bool isColorWhite;
   int textureColumn;
+  bool captured;
 };
 
 class SlidePiece : public Piece {
