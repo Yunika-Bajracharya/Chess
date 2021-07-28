@@ -32,7 +32,7 @@ void Gameboard::init() {
 
   // Handle FEN string
   Engine::handleFENString(STARTING_FEN, state, players);
-  
+
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
 }
@@ -104,7 +104,8 @@ void Gameboard::render() {
     destRect.x = boardStartPos.j + move.endPos.j * BLOCK_WIDTH;
     destRect.y = boardStartPos.i + move.endPos.i * BLOCK_WIDTH;
 
-    if (state.isEmpty(move.endPos)) {
+    if (state.isEmpty(move.endPos) &&
+        !(state.enPassantAvailable && state.enPassant == move.endPos)) {
       SDL_SetRenderDrawColor(Game::renderer, 100, 255, 0, 255);
 
       // For rendering circles

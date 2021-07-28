@@ -1,4 +1,5 @@
 #include "../headers/King.h"
+#include "../headers/BoardState.h"
 
 King::King(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
   textureColumn = 0;
@@ -19,6 +20,28 @@ void King::generateLegalMoves(const BoardState &state,
         m.endPos = tempPos;
 
         moves.push_back(m);
+
+        /*
+         * We check if can castle is available
+         * This is only then moving in the 3rd(index = 2) or 4th(index = 3)
+         * direction is legal.
+         */
+        if (i == 2 || i == 3) {
+          int castleCheckOffset = isColorWhite ? 0 : 2;
+          if (i == 3 && state.CastleAvailability[0 + castleCheckOffset]) {
+            tempPos += slideDirectionOffset[i];
+            if (state.isEmpty(tempPos)) {
+              moves.push_back({position, tempPos});
+            }
+          } else if (i == 2 &&
+                     state.CastleAvailability[1 + castleCheckOffset]) {
+            tempPos += slideDirectionOffset[i];
+            if (state.isEmpty(tempPos) &&
+                state.isEmpty(tempPos + Coordinate{0, -1})) {
+              moves.push_back({position, tempPos});
+            }
+          }
+        }
       }
     }
   }

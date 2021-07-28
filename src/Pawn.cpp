@@ -37,6 +37,10 @@ void Pawn::generateLegalMoves(const BoardState &state,
         if (state.isPieceWhite(destPos) != isColorWhite) {
           moves.push_back({position, destPos});
         }
+      } else {
+        if (state.enPassantAvailable && destPos == state.enPassant) {
+          moves.push_back({position, destPos});
+        }
       }
     }
   }

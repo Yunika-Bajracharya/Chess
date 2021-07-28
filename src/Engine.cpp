@@ -142,6 +142,20 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       /* We make the move
        */
 
+      // If pawn made a enPassant
+      if (movingPiece->getTextureColumn() == 5) {
+        int distanceI = move.startPos.i - move.endPos.i;
+        if (state.isEmpty(move.endPos) && state.enPassantAvailable &&
+            move.endPos == state.enPassant) {
+          // we know this has to be a enPassant
+          Piece *pieceToEnPassant =
+              state.getPiece(destination + Coordinate({distanceI, 0}));
+
+          pieceToEnPassant->getCaptured();
+          state.board[destination.i + distanceI][destination.j] = nullptr;
+        }
+      }
+
       // Capture the piece if there is one
       if (state.getPiece(destination)) {
         state.getPiece(destination)->getCaptured();
@@ -152,6 +166,41 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       state.board[destination.i][destination.j] = movingPiece;
       movingPiece->moveTo(destination);
 
+      // If the move was a castle, casteling
+      // TODO Remeber to remove castleability
+      if (movingPiece->getTextureColumn() == 0) {
+        if (move.startPos.j - move.endPos.j == -2) {
+          Coordinate rookPos = {move.endPos.i, move.endPos.j + 1};
+          Piece *rook = state.getPiece(rookPos);
+          rookPos = {move.endPos.i, move.endPos.j - 1};
+          state.board[rookPos.i][rookPos.j] = rook;
+          rook->moveTo(rookPos);
+        } else if (move.startPos.j - move.endPos.j == 2) {
+          Coordinate rookPos = {move.endPos.i, move.endPos.j - 2};
+          Piece *rook = state.getPiece(rookPos);
+          rookPos = {move.endPos.i, move.endPos.j + 1};
+          state.board[rookPos.i][rookPos.j] = rook;
+          rook->moveTo(rookPos);
+        }
+        // now no casle
+        if (movingPiece->isWhite()) {
+          state.CastleAvailability[0] = false;
+          state.CastleAvailability[1] = false;
+        } else {
+          state.CastleAvailability[2] = false;
+          state.CastleAvailability[3] = false;
+        }
+      }
+
+      // If pawn moves 2 squares
+      state.enPassantAvailable = false;
+      if (movingPiece->getTextureColumn() == 5) {
+        int distanceI = move.startPos.i - move.endPos.i;
+        if (distanceI == 2 || distanceI == -2) {
+          state.enPassantAvailable = true;
+          state.enPassant = move.endPos + Coordinate({distanceI / 2, 0});
+        }
+      }
       // Change the turn
       state.isWhiteTurn = !state.isWhiteTurn;
       break;
