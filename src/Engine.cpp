@@ -2,19 +2,117 @@
 
 void Engine::handleFENString(std::string fenString, BoardState &state,
                              Player *players[2]) {
+  int index = 0;
+  int column; 
+  
+  for (int rank = 0; rank < 8; rank++) {
+    column = 0;
+    while (fenString[index] != '/' && fenString[index] != ' ') {
 
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      state.board[i][j] = nullptr;
+      if (isdigit(fenString[index])) {
+        column += (fenString[index] - ASCII_OFFSET); // ASCII_OFFSET '0'
+        index++;
+      }
+
+      else {
+        
+        switch(fenString[index]) {
+        case 'K':
+          addPiece(new King({rank, column}, true), state, players);
+          break;
+        case 'k':
+          addPiece(new King({rank, column}, false), state, players);
+          break;
+        case 'Q':
+          addPiece(new Queen({rank, column}, true), state, players);
+          break;
+        case 'q':
+          addPiece(new Queen({rank, column}, false), state, players);
+         break;
+        case 'N':
+          addPiece(new Knight({rank, column}, true), state, players);
+          break;
+        case 'n':
+          addPiece(new Knight({rank, column}, false), state, players);
+          break;
+        case 'B':
+          addPiece(new Bishop({rank, column}, true), state, players);
+          break;
+        case 'b':
+          addPiece(new Bishop({rank, column}, false), state, players);
+          break;
+        case 'R':
+          addPiece(new Rook({rank, column}, true), state, players);
+          break;
+        case 'r':
+          addPiece(new Rook({rank, column}, false), state, players);
+          break;
+        case 'P':
+          addPiece(new Pawn({rank, column}, true), state, players);
+          break;
+        case 'p':
+          addPiece(new Pawn({rank, column}, false), state, players);
+          break;
+        default:
+          break;         
+        } 
+        ++index;
+        ++column;
+      }
     }
+    ++index;
+  } 
+
+  // current player's turn
+  state.isWhiteTurn = (fenString[index] == 'w') ? true : false;
+  index += 2;
+  for (int index = 0; index < 4; index++) {
+    state.CastleAvailability[index] = false;
+  }
+  
+  //castling
+  if (fenString[index] == '-') {
+    index += 2;
+  }
+  else {
+  while (fenString[index] != ' ') {
+    switch (fenString[index]) {
+    case 'K':
+      state.CastleAvailability[0] = true;
+      break;
+    case 'Q':
+      state.CastleAvailability[1] = true;
+      break;
+    case 'q':
+      state.CastleAvailability[3] = true;
+      break;
+    case 'k':
+      state.CastleAvailability[2] = true;
+      break;
+    }
+    ++index;
+  }
+  ++index;
   }
 
-  // TODO
-  addPiece(new Queen({2, 3}, true), state, players);
-  addPiece(new King({4, 2}, true), state, players);
-  addPiece(new Bishop({5, 3}, false), state, players);
-  addPiece(new Rook({4, 6}, false), state, players);
+  // en-passant
+  if (fenString[index] == '-') {
+    index += 2;
+    state.enPassantAvailable = false;
+    // state.enPassant = 0;
+  } 
+  else {
+    int right = fenString[index] - 'a';
+    ++index;
+    int down = 8 - (fenString[index] - '0');
+    state.enPassantAvailable = true;
+    // state.enPassant = right + 8 * down;
+    ++index;
+  }
+
+  // half move and full move left
 }
+
 
 void Engine::addPiece(Piece *piece, BoardState &state, Player *players[2]) {
   Coordinate c = piece->getCoordinate();
