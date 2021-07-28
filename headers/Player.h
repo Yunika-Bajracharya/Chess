@@ -18,4 +18,6 @@ private:
   std::string Name;
   std::vector<Piece *> pieces;
   bool _isWhite;
+
+  int time;
 };

@@ -48,6 +48,12 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
       location.display();
       Piece *piece = state.getPiece(location);
       if (piece) {
+
+        // If it is not the player's turn, do nothing
+        if (piece->isWhite() != state.isWhiteTurn) {
+          return;
+        }
+
         state.dragPieceId = piece->getID();
         state.dragPieceLocation = location;
         piece->generateLegalMoves(state, moves);

@@ -3,8 +3,8 @@
 void Engine::handleFENString(std::string fenString, BoardState &state,
                              Player *players[2]) {
   int index = 0;
-  int column; 
-  
+  int column;
+
   for (int rank = 0; rank < 8; rank++) {
     column = 0;
     while (fenString[index] != '/' && fenString[index] != ' ') {
@@ -15,8 +15,8 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
       }
 
       else {
-        
-        switch(fenString[index]) {
+
+        switch (fenString[index]) {
         case 'K':
           addPiece(new King({rank, column}, true), state, players);
           break;
@@ -28,7 +28,7 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
           break;
         case 'q':
           addPiece(new Queen({rank, column}, false), state, players);
-         break;
+          break;
         case 'N':
           addPiece(new Knight({rank, column}, true), state, players);
           break;
@@ -54,14 +54,14 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
           addPiece(new Pawn({rank, column}, false), state, players);
           break;
         default:
-          break;         
-        } 
+          break;
+        }
         ++index;
         ++column;
       }
     }
     ++index;
-  } 
+  }
 
   // current player's turn
   state.isWhiteTurn = (fenString[index] == 'w') ? true : false;
@@ -69,50 +69,47 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
   for (int index = 0; index < 4; index++) {
     state.CastleAvailability[index] = false;
   }
-  
-  //castling
+
+  // castling
   if (fenString[index] == '-') {
     index += 2;
-  }
-  else {
-  while (fenString[index] != ' ') {
-    switch (fenString[index]) {
-    case 'K':
-      state.CastleAvailability[0] = true;
-      break;
-    case 'Q':
-      state.CastleAvailability[1] = true;
-      break;
-    case 'q':
-      state.CastleAvailability[3] = true;
-      break;
-    case 'k':
-      state.CastleAvailability[2] = true;
-      break;
+  } else {
+    while (fenString[index] != ' ') {
+      switch (fenString[index]) {
+      case 'K':
+        state.CastleAvailability[0] = true;
+        break;
+      case 'Q':
+        state.CastleAvailability[1] = true;
+        break;
+      case 'q':
+        state.CastleAvailability[3] = true;
+        break;
+      case 'k':
+        state.CastleAvailability[2] = true;
+        break;
+      }
+      ++index;
     }
     ++index;
-  }
-  ++index;
   }
 
   // en-passant
   if (fenString[index] == '-') {
     index += 2;
     state.enPassantAvailable = false;
-    // state.enPassant = 0;
-  } 
-  else {
+    state.enPassant = {0, 0};
+  } else {
     int right = fenString[index] - 'a';
     ++index;
     int down = 8 - (fenString[index] - '0');
     state.enPassantAvailable = true;
-    // state.enPassant = right + 8 * down;
+    state.enPassant = {down, right};
     ++index;
   }
 
   // half move and full move left
 }
-
 
 void Engine::addPiece(Piece *piece, BoardState &state, Player *players[2]) {
   Coordinate c = piece->getCoordinate();
@@ -155,6 +152,8 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       state.board[destination.i][destination.j] = movingPiece;
       movingPiece->moveTo(destination);
 
+      // Change the turn
+      state.isWhiteTurn = !state.isWhiteTurn;
       break;
     }
   }

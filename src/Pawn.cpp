@@ -21,7 +21,9 @@ void Pawn::generateLegalMoves(const BoardState &state,
       if (doubleMove) {
         destPos += Coordinate({direction, 0});
         if (destPos.isValidBoardIndex())
-          moves.push_back({position, destPos});
+          if (state.isEmpty(destPos)) {
+            moves.push_back({position, destPos});
+          }
       }
     }
   }
