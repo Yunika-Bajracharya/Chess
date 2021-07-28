@@ -5,7 +5,11 @@ public:
   Pawn(Coordinate pos, bool isColorWhite);
   ~Pawn() override;
 
-  void generateLegalMoves() override;
+  void moveTo(Coordinate destination) override;
+
+  void generateLegalMoves(const BoardState &state,
+                          std::vector<Move> &moves) override;
 
 private:
+  bool doubleMove;
 };

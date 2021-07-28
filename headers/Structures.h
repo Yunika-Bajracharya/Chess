@@ -36,7 +36,7 @@ struct Coordinate {
   Coordinate operator+(Coordinate c) {
     Coordinate temp;
     temp.i = i + c.i;
-    temp.j = i + c.j;
+    temp.j = j + c.j;
     return temp;
   }
 

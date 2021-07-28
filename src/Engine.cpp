@@ -142,10 +142,20 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
         continue;
       }
 
+      /* We make the move
+       */
+
+      // Capture the piece if there is one
+      if (state.getPiece(destination)) {
+        state.getPiece(destination)->getCaptured();
+      }
+
+      // Move the piece to the new location
       state.board[startPos.i][startPos.j] = nullptr;
       state.board[destination.i][destination.j] = movingPiece;
-
       movingPiece->moveTo(destination);
+
+      break;
     }
   }
 }

@@ -18,4 +18,14 @@ struct BoardState {
   Coordinate dragPieceLocation; // Stores the locaiton of the grid
 
   Piece *getPiece(Coordinate location) { return board[location.i][location.j]; }
+  bool isPieceWhite(Coordinate location) const {
+    return board[location.i][location.j]->isWhite();
+  }
+
+  bool isEmpty(Coordinate location) const {
+    if (board[location.i][location.j]) {
+      return false;
+    } else
+      return true;
+  }
 };

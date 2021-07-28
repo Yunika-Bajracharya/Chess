@@ -5,7 +5,6 @@ public:
   King(Coordinate pos, bool isColorWhite);
   ~King() override;
 
-  void generateLegalMoves() override;
   void generateLegalMoves(const BoardState &state,
                           std::vector<Move> &moves) override;
 

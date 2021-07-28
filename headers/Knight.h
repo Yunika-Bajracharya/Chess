@@ -5,7 +5,8 @@ public:
   Knight(Coordinate pos, bool isColorWhite);
   ~Knight() override;
 
-  void generateLegalMoves() override;
+  void generateLegalMoves(const BoardState &state,
+                          std::vector<Move> &moves) override;
 
 private:
 };

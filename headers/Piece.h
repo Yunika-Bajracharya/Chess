@@ -1,24 +1,28 @@
 #pragma once
 #include "Structures.h"
 
-class BoardState;
+struct BoardState;
+
 class Piece {
 public:
   Piece(Coordinate pos, bool isColorWhite);
   virtual ~Piece();
 
-  virtual void generateLegalMoves() = 0;
-
   virtual void generateLegalMoves(const BoardState &state,
                                   std::vector<Move> &moves);
 
   int getTextureColumn(); // The column refers to Gameboard.pieceTexture
-
-  void moveTo(Coordinate destination); // Moves the piece to the location
-
   int getID();
   Coordinate getCoordinate();
   bool isWhite();
+
+  virtual void
+  moveTo(Coordinate destination); // Moves the piece to the location
+
+  void getCaptured();
+  bool isCaptured();
+
+  bool canMoveTo(Coordinate c, const BoardState &state);
 
   static Coordinate slideDirectionOffset[8];
   static Coordinate knightDirectionOffset[8];
@@ -28,6 +32,7 @@ protected:
   Coordinate position;
   bool isColorWhite;
   int textureColumn;
+  bool captured;
 };
 
 class SlidePiece : public Piece {
