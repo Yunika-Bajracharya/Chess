@@ -5,20 +5,21 @@ King::King(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
 };
 
 King::~King() {}
-void King::generateLegalMoves() {}
 
-void King::generateLegalMoves(const BoardState &board,
+void King::generateLegalMoves(const BoardState &state,
                               std::vector<Move> &moves) {
   for (int i = 0; i < 8; i++) {
     Coordinate tempPos = position;
     tempPos += slideDirectionOffset[i];
 
     if (tempPos.isValidBoardIndex()) {
-      Move m;
-      m.startPos = position;
-      m.endPos = tempPos;
+      if (canMoveTo(tempPos, state)) {
+        Move m;
+        m.startPos = position;
+        m.endPos = tempPos;
 
-      moves.push_back(m);
+        moves.push_back(m);
+      }
     }
   }
 }

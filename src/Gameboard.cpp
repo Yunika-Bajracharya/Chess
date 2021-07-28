@@ -21,7 +21,7 @@ void Gameboard::init() {
 
   // Creating Players
   players[0] = new Player("Suban", true);
-  players[1] = new Player("Yunika", false);
+  players[1] = new Player("Prabin", false);
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
@@ -124,16 +124,32 @@ void Gameboard::render() {
    */
 
   srcRect.h = srcRect.w = 200;
+  int capturedPieceOffset[2] = {0, 0};
   for (int i = 0; i < 2; i++) {
     for (Piece *piece : players[i]->pieces) {
-      // If the piece is captured, we skip it
-      if (piece->isCaptured()) {
-        continue;
-      }
-
       // If white lower row, if black upper row
       srcRect.y = (piece->isWhite()) ? 0 : srcRect.h;
       srcRect.x = piece->getTextureColumn() * srcRect.h;
+
+      // If the piece is captured, we render it on the side
+      if (piece->isCaptured()) {
+        int index = piece->isWhite();
+        int offsetIncrease = BLOCK_WIDTH / 2;
+
+        destRect.x =
+            WINDOW_WIDTH / 2 + 5 * BLOCK_WIDTH + capturedPieceOffset[index];
+        destRect.y = (i == 0) ? 0.2 * WINDOW_HEIGHT : 0.7 * WINDOW_HEIGHT;
+
+        // We just chaned destRect's w, h
+        destRect.h = destRect.w = offsetIncrease;
+
+        SDL_RenderCopy(Game::renderer, pieceTexture, &srcRect, &destRect);
+
+        destRect.h = destRect.w = BLOCK_WIDTH; // We restored it
+
+        capturedPieceOffset[index] += offsetIncrease;
+        continue;
+      }
 
       if (piece->getID() == state.dragPieceId) {
         SDL_GetMouseState(&destRect.x, &destRect.y);

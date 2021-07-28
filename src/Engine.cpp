@@ -15,6 +15,7 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
   addPiece(new Bishop({5, 3}, false), state, players);
   addPiece(new Rook({4, 6}, false), state, players);
   addPiece(new Pawn({6, 4}, true), state, players);
+  addPiece(new Knight({1, 2}, true), state, players);
 }
 
 void Engine::addPiece(Piece *piece, BoardState &state, Player *players[2]) {
