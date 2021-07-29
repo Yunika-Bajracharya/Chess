@@ -7,8 +7,10 @@ Knight::Knight(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
 
 Knight::~Knight() {}
 
-void Knight::generateLegalMoves(const BoardState &state,
-                                std::vector<Move> &moves) {
+Piece *Knight::clone() { return new Knight(*this); }
+
+void Knight::generateAllMoves(const BoardState &state,
+                              std::vector<Move> &moves) {
   moves.clear();
   for (int i = 0; i < 8; i++) {
     Coordinate tempPos = position;

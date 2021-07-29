@@ -8,8 +8,9 @@ Pawn::Pawn(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
 
 Pawn::~Pawn() {}
 
-void Pawn::generateLegalMoves(const BoardState &state,
-                              std::vector<Move> &moves) {
+Piece *Pawn::clone() { return new Pawn(*this); }
+
+void Pawn::generateAllMoves(const BoardState &state, std::vector<Move> &moves) {
   int direction = isColorWhite ? -1 : 1;
 
   // Straight moves

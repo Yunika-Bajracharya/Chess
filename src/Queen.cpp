@@ -7,3 +7,5 @@ Queen::Queen(Coordinate pos, bool isColorWhite)
   loopStartIndex = 0;
   loopStopIndex = 8;
 }
+
+Piece *Queen::clone() { return new Queen(*this); }

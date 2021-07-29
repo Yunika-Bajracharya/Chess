@@ -6,3 +6,5 @@ Rook::Rook(Coordinate pos, bool isColorWhite) : SlidePiece(pos, isColorWhite) {
   loopStartIndex = 0;
   loopStopIndex = 4;
 }
+
+Piece *Rook::clone() { return new Rook(*this); }

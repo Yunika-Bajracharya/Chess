@@ -4,9 +4,10 @@ class King : public Piece {
 public:
   King(Coordinate pos, bool isColorWhite);
   ~King() override;
+  Piece *clone() override;
 
-  void generateLegalMoves(const BoardState &state,
-                          std::vector<Move> &moves) override;
+  void generateAllMoves(const BoardState &state,
+                        std::vector<Move> &moves) override;
 
 private:
 };

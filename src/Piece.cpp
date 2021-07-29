@@ -1,5 +1,6 @@
 #include "../headers/Piece.h"
 #include "../headers/BoardState.h"
+#include "../headers/Engine.h"
 
 Piece::Piece(Coordinate pos, bool isColorWhite) : position(pos) {
   static int pieceID = 1;
@@ -27,7 +28,25 @@ Coordinate Piece::knightDirectionOffset[8] = {
 void Piece::moveTo(Coordinate destination) { this->position = destination; }
 
 void Piece::generateLegalMoves(const BoardState &state,
-                               std::vector<Move> &moves) {}
+                               std::vector<Move> &moves) {
+  std::vector<Move> pseudoLegalMoves;
+  generateAllMoves(state, pseudoLegalMoves);
+
+  for (Move move : pseudoLegalMoves) {
+    // Because of shallow copy this does not work, do not use it yet
+    BoardState newState = state; // Somehow make this a full copy
+    Engine::handlePiecePlacement(move.endPos, newState, pseudoLegalMoves);
+
+    /*
+     * TODO if our king is in direct line of fire from opponent,
+     * bad move we no add
+     */
+    if (!Engine::canDirectAttackKing(newState)) {
+      moves.push_back(move);
+    }
+  }
+  // Copy the state, play the moves if legal add to moves
+}
 
 void Piece::getCaptured() { captured = true; }
 bool Piece::isCaptured() { return captured; }
@@ -52,8 +71,8 @@ SlidePiece::SlidePiece(Coordinate pos, bool isColorWhite)
     : Piece(pos, isColorWhite) {}
 SlidePiece::~SlidePiece() {}
 
-void SlidePiece::generateLegalMoves(const BoardState &state,
-                                    std::vector<Move> &moves) {
+void SlidePiece::generateAllMoves(const BoardState &state,
+                                  std::vector<Move> &moves) {
   moves.clear();
   for (int i = loopStartIndex; i < loopStopIndex; i++) {
     Coordinate tempPos = position;

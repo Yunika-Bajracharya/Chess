@@ -7,3 +7,5 @@ Bishop::Bishop(Coordinate pos, bool isColorWhite)
   loopStartIndex = 4;
   loopStopIndex = 8;
 }
+
+Piece *Bishop::clone() { return new Bishop(*this); }

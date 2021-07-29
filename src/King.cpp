@@ -7,8 +7,9 @@ King::King(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
 
 King::~King() {}
 
-void King::generateLegalMoves(const BoardState &state,
-                              std::vector<Move> &moves) {
+Piece *King::clone() { return new King(*this); }
+
+void King::generateAllMoves(const BoardState &state, std::vector<Move> &moves) {
   for (int i = 0; i < 8; i++) {
     Coordinate tempPos = position;
     tempPos += slideDirectionOffset[i];

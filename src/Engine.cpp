@@ -1,7 +1,13 @@
 #include "../headers/Engine.h"
 
-void Engine::handleFENString(std::string fenString, BoardState &state,
-                             Player *players[2]) {
+void Engine::handleFENString(std::string fenString, BoardState &state) {
+  // First we initalize them into nullptr
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      state.board[i][j] = nullptr;
+    }
+  }
+
   int index = 0;
   int column;
 
@@ -18,40 +24,40 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
 
         switch (fenString[index]) {
         case 'K':
-          addPiece(new King({rank, column}, true), state, players);
+          addPiece(new King({rank, column}, true), state);
           break;
         case 'k':
-          addPiece(new King({rank, column}, false), state, players);
+          addPiece(new King({rank, column}, false), state);
           break;
         case 'Q':
-          addPiece(new Queen({rank, column}, true), state, players);
+          addPiece(new Queen({rank, column}, true), state);
           break;
         case 'q':
-          addPiece(new Queen({rank, column}, false), state, players);
+          addPiece(new Queen({rank, column}, false), state);
           break;
         case 'N':
-          addPiece(new Knight({rank, column}, true), state, players);
+          addPiece(new Knight({rank, column}, true), state);
           break;
         case 'n':
-          addPiece(new Knight({rank, column}, false), state, players);
+          addPiece(new Knight({rank, column}, false), state);
           break;
         case 'B':
-          addPiece(new Bishop({rank, column}, true), state, players);
+          addPiece(new Bishop({rank, column}, true), state);
           break;
         case 'b':
-          addPiece(new Bishop({rank, column}, false), state, players);
+          addPiece(new Bishop({rank, column}, false), state);
           break;
         case 'R':
-          addPiece(new Rook({rank, column}, true), state, players);
+          addPiece(new Rook({rank, column}, true), state);
           break;
         case 'r':
-          addPiece(new Rook({rank, column}, false), state, players);
+          addPiece(new Rook({rank, column}, false), state);
           break;
         case 'P':
-          addPiece(new Pawn({rank, column}, true), state, players);
+          addPiece(new Pawn({rank, column}, true), state);
           break;
         case 'p':
-          addPiece(new Pawn({rank, column}, false), state, players);
+          addPiece(new Pawn({rank, column}, false), state);
           break;
         default:
           break;
@@ -111,11 +117,11 @@ void Engine::handleFENString(std::string fenString, BoardState &state,
   // half move and full move left
 }
 
-void Engine::addPiece(Piece *piece, BoardState &state, Player *players[2]) {
+void Engine::addPiece(Piece *piece, BoardState &state) {
   Coordinate c = piece->getCoordinate();
   int index = piece->isWhite() ? 0 : 1;
 
-  players[index]->pieces.push_back(piece);
+  state.players[index]->pieces.push_back(piece);
 
   // Probably update the boardState
   state.board[c.i][c.j] = piece;
@@ -206,4 +212,44 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       break;
     }
   }
+}
+
+bool Engine::canDirectAttackKing(const BoardState &state) {
+  bool turn = state.isWhiteTurn;
+  int index = turn ? 0 : 1;
+  int enemy = !turn ? 0 : 1;
+
+  Coordinate enemyKingLocation;
+
+  // Find the king
+  bool kingFound = false;
+  for (Piece *p : state.players[enemy]->pieces) {
+    if (p->getTextureColumn() == 0) {
+      enemyKingLocation = p->getCoordinate();
+      kingFound = true;
+    }
+  }
+  if (!kingFound) {
+    return false;
+  }
+
+  // Check moves for each of enemy piece
+  std::vector<Move> moves;
+  for (Piece *p : state.players[index]->pieces) {
+
+    if (p->isCaptured()) {
+      continue;
+    }
+
+    moves.clear();
+    p->generateAllMoves(state, moves);
+
+    for (Move move : moves) {
+      if (move.endPos == enemyKingLocation) {
+        return true;
+      }
+    }
+    moves.clear();
+  }
+  return false;
 }

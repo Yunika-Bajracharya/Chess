@@ -7,9 +7,12 @@ class Piece {
 public:
   Piece(Coordinate pos, bool isColorWhite);
   virtual ~Piece();
+  virtual Piece *clone() = 0;
 
-  virtual void generateLegalMoves(const BoardState &state,
-                                  std::vector<Move> &moves);
+  void generateLegalMoves(const BoardState &state, std::vector<Move> &moves);
+
+  virtual void generateAllMoves(const BoardState &state,
+                                std::vector<Move> &moves) = 0;
 
   int getTextureColumn(); // The column refers to Gameboard.pieceTexture
   int getID();
@@ -40,8 +43,8 @@ public:
   SlidePiece(Coordinate pos, bool isColorWhite);
   ~SlidePiece();
 
-  void generateLegalMoves();
-  void generateLegalMoves(const BoardState &state, std::vector<Move> &moves);
+  void generateAllMoves(const BoardState &state,
+                        std::vector<Move> &moves) override;
 
 protected:
   int loopStartIndex;

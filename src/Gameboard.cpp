@@ -8,9 +8,6 @@ Gameboard::~Gameboard() {
   SDL_DestroyTexture(playerNamesTexture[0]);
   SDL_DestroyTexture(playerNamesTexture[1]);
   SDL_DestroyTexture(pieceTexture);
-
-  delete players[0];
-  delete players[1];
 }
 
 void Gameboard::init() {
@@ -21,17 +18,17 @@ void Gameboard::init() {
   boardStartPos.i = WINDOW_HEIGHT / 2 - 4 * BLOCK_WIDTH;
 
   // Creating Players
-  players[0] = new Player("Suban", true);
-  players[1] = new Player("Prabin", false);
+  state.players[0] = new Player("Suban", true);
+  state.players[1] = new Player("Prabin", false);
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
     playerNamesTexture[i] =
-        TextureManager::loadSentence(players[i]->Name.c_str());
+        TextureManager::loadSentence(state.players[i]->Name.c_str());
   }
 
   // Handle FEN string
-  Engine::handleFENString(STARTING_FEN, state, players);
+  Engine::handleFENString(STARTING_FEN, state);
 
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
@@ -134,7 +131,7 @@ void Gameboard::render() {
   srcRect.h = srcRect.w = 200;
   int capturedPieceOffset[2] = {0, 0};
   for (int i = 0; i < 2; i++) {
-    for (Piece *piece : players[i]->pieces) {
+    for (Piece *piece : state.players[i]->pieces) {
       // If white lower row, if black upper row
       srcRect.y = (piece->isWhite()) ? 0 : srcRect.h;
       srcRect.x = piece->getTextureColumn() * srcRect.h;
