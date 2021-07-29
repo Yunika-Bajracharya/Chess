@@ -36,6 +36,7 @@ private:
   BoardState state;
   Coordinate boardStartPos; // The top left edge of board
   std::vector<Move> moves;
+  std::vector<std::vector<Move>> allMoves;
 
   Player *players[2];
 

@@ -127,7 +127,7 @@ void Engine::addPiece(Piece *piece, BoardState &state) {
   state.board[c.i][c.j] = piece;
 }
 
-void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
+bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
                                   const std::vector<Move> moves) {
 
   for (Move move : moves) {
@@ -209,6 +209,47 @@ void Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       }
       // Change the turn
       state.isWhiteTurn = !state.isWhiteTurn;
+      return true;
+    }
+  }
+  return false;
+}
+
+int Engine::generateAllMoves(const BoardState &state,
+                             std::vector<std::vector<Move>> &allMoves) {
+
+  int count = 0;
+  // Makesure all move is completely clearred
+  for (std::vector<Move> movelist : allMoves) {
+    movelist.clear();
+  }
+  allMoves.clear();
+
+  int playerIndex = state.isWhiteTurn ? 0 : 1;
+  std::vector<Move> moves;
+
+  for (Piece *p : state.players[playerIndex]->pieces) {
+    count += p->generateLegalMoves(state, moves);
+    allMoves.push_back(moves);
+    moves.clear();
+  }
+
+  return count;
+}
+void Engine::getMovelist(const Coordinate &c,
+                         std::vector<std::vector<Move>> &allMovesSrc,
+                         std::vector<Move> &movesDest) {
+
+  movesDest.clear();
+
+  for (std::vector<Move> movelist : allMovesSrc) {
+    if (movelist.size() == 0)
+      continue;
+    if (movelist.front().startPos == c) {
+      // We found our list
+      for (Move move : movelist) {
+        movesDest.push_back(move);
+      }
       break;
     }
   }

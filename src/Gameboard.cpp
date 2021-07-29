@@ -32,6 +32,9 @@ void Gameboard::init() {
 
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
+
+  allMoves.clear();
+  Engine::generateAllMoves(state, allMoves);
 }
 
 void Gameboard::handleMouseDown(SDL_Event &event) {
@@ -42,7 +45,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
 
   if (event.button.button == SDL_BUTTON_LEFT) {
     if (location.isValidBoardIndex()) {
-      location.display();
+      // location.display();
       Piece *piece = state.getPiece(location);
       if (piece) {
 
@@ -53,7 +56,8 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
 
         state.dragPieceId = piece->getID();
         state.dragPieceLocation = location;
-        piece->generateLegalMoves(state, moves);
+        // piece->generateLegalMoves(state, moves);
+        Engine::getMovelist(location, allMoves, moves);
       }
     }
 
@@ -68,8 +72,15 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
   if (event.button.button == SDL_BUTTON_LEFT) {
-    Engine::handlePiecePlacement(location, state, moves);
+    bool success = Engine::handlePiecePlacement(location, state, moves);
     moves.clear();
+
+    if (success) {
+      int count = Engine::generateAllMoves(state, allMoves);
+      if (count == 0) {
+        std::cout << "Checkmate!!!" << std::endl;
+      }
+    }
   }
   state.dragPieceId = 0;
 }

@@ -28,14 +28,17 @@ Coordinate Piece::knightDirectionOffset[8] = {
 
 void Piece::moveTo(Coordinate destination) { this->position = destination; }
 
-void Piece::generateLegalMoves(const BoardState &state,
-                               std::vector<Move> &moves) {
+int Piece::generateLegalMoves(const BoardState &state,
+                              std::vector<Move> &moves) {
   std::vector<Move> pseudoLegalMoves;
   generateAllMoves(state, pseudoLegalMoves);
 
+  int moveCount = 0;
   for (Move move : pseudoLegalMoves) {
     // Because of shallow copy this does not work, do not use it yet
     BoardState newState = state; // Somehow make this a full copy
+    newState.dragPieceLocation = move.startPos;
+    newState.dragPieceId = state.getID(move.startPos);
     Engine::handlePiecePlacement(move.endPos, newState, pseudoLegalMoves);
 
     /*
@@ -44,8 +47,10 @@ void Piece::generateLegalMoves(const BoardState &state,
      */
     if (!Engine::canDirectAttackKing(newState)) {
       moves.push_back(move);
+      moveCount += 1;
     }
   }
+  return moveCount;
   // Copy the state, play the moves if legal add to moves
 }
 

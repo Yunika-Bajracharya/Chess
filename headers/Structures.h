@@ -51,3 +51,24 @@ struct Move {
   Coordinate startPos;
   Coordinate endPos;
 };
+
+// Stores all the moves
+struct AvailableMoves {
+  std::vector<std::vector<Move>> allMoves;
+
+  void getMoves(Coordinate startPos, std::vector<Move> &moves) {
+    moves.clear();
+
+    for (std::vector<Move> movelist : allMoves) {
+      if (movelist.size() == 0)
+        continue;
+      if (movelist.front().startPos == startPos) {
+        // We found our list
+        for (Move move : movelist) {
+          moves.push_back(move);
+        }
+        break;
+      }
+    }
+  }
+};

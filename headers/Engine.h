@@ -11,11 +11,18 @@ public:
    * Handle piece selection and piece placement
    */
 
-  static void handlePiecePlacement(Coordinate &destination, BoardState &state,
+  static bool handlePiecePlacement(Coordinate &destination, BoardState &state,
                                    const std::vector<Move> moves);
 
   // Returns true if the current player's king is under attack
   static bool canDirectAttackKing(const BoardState &state);
+
+  // Generates moves for all the pieces of a given color
+  static int generateAllMoves(const BoardState &state,
+                              std::vector<std::vector<Move>> &allMoves);
+  static void getMovelist(const Coordinate &c,
+                          std::vector<std::vector<Move>> &allMovesSrc,
+                          std::vector<Move> &movesDest);
 
 private:
   static void addPiece(Piece *piece, BoardState &state);

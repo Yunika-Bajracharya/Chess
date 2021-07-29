@@ -9,7 +9,7 @@ public:
   virtual ~Piece();
   virtual Piece *clone() = 0;
 
-  void generateLegalMoves(const BoardState &state, std::vector<Move> &moves);
+  int generateLegalMoves(const BoardState &state, std::vector<Move> &moves);
 
   virtual void generateAllMoves(const BoardState &state,
                                 std::vector<Move> &moves) = 0;

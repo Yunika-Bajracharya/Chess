@@ -25,6 +25,9 @@ struct BoardState {
   bool isPieceWhite(Coordinate location) const {
     return board[location.i][location.j]->isWhite();
   }
+  int getID(Coordinate location) const {
+    return board[location.i][location.j]->getID();
+  }
 
   bool isEmpty(Coordinate location) const {
     if (!location.isValidBoardIndex()) {
