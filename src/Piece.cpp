@@ -23,7 +23,8 @@ Coordinate Piece::slideDirectionOffset[8] = {
     {1, 0}, {-1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 Coordinate Piece::knightDirectionOffset[8] = {
-    {1, 2}, {-1, 2}, {2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {1, -2}, {1, 2}};
+    {1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {2, -1}, {-2, -1}, {-2, 1},
+};
 
 void Piece::moveTo(Coordinate destination) { this->position = destination; }
 
