@@ -8,8 +8,8 @@ public:
 
   void moveTo(Coordinate destination) override;
 
-  void generateAllMoves(const BoardState &state,
-                        std::vector<Move> &moves) override;
+  int generateAllMoves(const BoardState &state,
+                       std::vector<Move> &moves) override;
 
 private:
   bool doubleMove;

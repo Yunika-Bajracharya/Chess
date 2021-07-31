@@ -6,8 +6,8 @@ public:
   ~King() override;
   Piece *clone() override;
 
-  void generateAllMoves(const BoardState &state,
-                        std::vector<Move> &moves) override;
+  int generateAllMoves(const BoardState &state,
+                       std::vector<Move> &moves) override;
 
 private:
 };

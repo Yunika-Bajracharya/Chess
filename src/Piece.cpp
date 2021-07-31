@@ -77,9 +77,10 @@ SlidePiece::SlidePiece(Coordinate pos, bool isColorWhite)
     : Piece(pos, isColorWhite) {}
 SlidePiece::~SlidePiece() {}
 
-void SlidePiece::generateAllMoves(const BoardState &state,
-                                  std::vector<Move> &moves) {
+int SlidePiece::generateAllMoves(const BoardState &state,
+                                 std::vector<Move> &moves) {
   moves.clear();
+  int count = 0;
   for (int i = loopStartIndex; i < loopStopIndex; i++) {
     Coordinate tempPos = position;
     tempPos += slideDirectionOffset[i];
@@ -103,10 +104,12 @@ void SlidePiece::generateAllMoves(const BoardState &state,
       moves.push_back(m);
 
       tempPos += slideDirectionOffset[i];
+      count++;
 
       if (captureTime) {
         break;
       }
     }
   }
+  return count;
 }

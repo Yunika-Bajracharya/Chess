@@ -9,9 +9,10 @@ Knight::~Knight() {}
 
 Piece *Knight::clone() { return new Knight(*this); }
 
-void Knight::generateAllMoves(const BoardState &state,
-                              std::vector<Move> &moves) {
+int Knight::generateAllMoves(const BoardState &state,
+                             std::vector<Move> &moves) {
   moves.clear();
+  int count = 0;
   for (int i = 0; i < 8; i++) {
     Coordinate tempPos = position;
     tempPos += knightDirectionOffset[i];
@@ -23,7 +24,9 @@ void Knight::generateAllMoves(const BoardState &state,
         m.endPos = tempPos;
 
         moves.push_back(m);
+        count++;
       }
     }
   }
+  return count;
 }

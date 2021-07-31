@@ -3,6 +3,8 @@
 #include "Structures.h"
 #define ASCII_OFFSET 48
 
+class Test;
+
 class Engine {
 public:
   static void handleFENString(std::string fenString, BoardState &state);
@@ -24,6 +26,9 @@ public:
                           std::vector<std::vector<Move>> &allMovesSrc,
                           std::vector<Move> &movesDest);
 
+  friend class Test;
+
 private:
   static void addPiece(Piece *piece, BoardState &state);
+  static void placePiece(Move move, BoardState &state);
 };
