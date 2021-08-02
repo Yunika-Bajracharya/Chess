@@ -58,13 +58,19 @@ struct BoardState {
       }
     }
 
+    for (int i = 0; i < 4; i++) {
+      CastleAvailability[i] = s.CastleAvailability[i];
+    }
+
     for (int i = 0; i < 2; i++) {
       players[i] = new Player(s.players[i]->getName(), s.players[i]->isWhite());
       for (Piece *p : s.players[i]->pieces) {
         Piece *newP = p->clone();
         players[i]->pieces.push_back(newP);
         Coordinate destination = newP->getCoordinate();
-        board[destination.i][destination.j] = newP;
+        if (!newP->isCaptured()) {
+          board[destination.i][destination.j] = newP;
+        }
       }
     }
   }

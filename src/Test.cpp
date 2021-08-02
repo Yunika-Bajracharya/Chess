@@ -1,7 +1,9 @@
 #include "../headers/Test.h"
 
 #define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define NEW_FEN "rnbqkbnr/pppppppp/8/8/8/7P/PPPPPPP1/RNBQKBNR b KQkq - 0 1"
+//#define NEW_FEN "rnbqkbnr/ppp1pppp/8/3N4/8/8/PPPPPPPP/R1BQKBNR b KQkq - 0 1"
+#define NEW_FEN                                                                \
+  "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10 "
 
 void Test::generateAllMoves(int depth, bool first) {
   BoardState state;
@@ -11,7 +13,7 @@ void Test::generateAllMoves(int depth, bool first) {
   state.players[0] = new Player("a", true);
   state.players[1] = new Player("b", false);
 
-  Engine::handleFENString(STARTING_FEN, state);
+  Engine::handleFENString(NEW_FEN, state);
   std::cout << getNumberOfMoves(depth, state, first) << std::endl;
 }
 
@@ -29,10 +31,15 @@ int Test::getNumberOfMoves(int depth, const BoardState &state, bool first) {
       Engine::placePiece(move, s);
       if (depth == 0) {
         count++;
+        if (first) {
+          move.display();
+          std::cout << 1 << std::endl;
+        }
       } else {
         int num = getNumberOfMoves(depth - 1, s, false);
         count += num;
         if (first) {
+          move.display();
           std::cout << num << std::endl;
         }
       }

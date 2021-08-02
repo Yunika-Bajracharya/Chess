@@ -3,7 +3,10 @@
 
 Pawn::Pawn(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
   textureColumn = 5;
-  doubleMove = true;
+  if ((pos.i == 1 && !isColorWhite) || (pos.i == 6 && isColorWhite))
+    doubleMove = true;
+  else
+    doubleMove = false;
 }
 
 Pawn::~Pawn() {}

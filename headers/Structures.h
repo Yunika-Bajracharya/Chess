@@ -50,6 +50,18 @@ struct Coordinate {
 struct Move {
   Coordinate startPos;
   Coordinate endPos;
+
+  char *toBoardNotation(Coordinate positon) {
+    char *temp = new char(3);
+    temp[0] = positon.j + 97;                         // The first letter
+    temp[1] = ((positon.i + 8) - 2 * positon.i) + 48; // The number
+    temp[2] = '\0';
+
+    return temp;
+  }
+  void display() {
+    std::cout << toBoardNotation(startPos) << toBoardNotation(endPos) << " ";
+  }
 };
 
 // Stores all the moves
