@@ -44,7 +44,6 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
 
     isRunning = true;
 
-
     // board->init();
     stateMachine.AddState(new GameMenu(this));
     // stateMachine.AddState(new GameMenu());

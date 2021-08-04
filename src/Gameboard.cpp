@@ -73,6 +73,10 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
 
   if (event.button.button == SDL_BUTTON_LEFT) {
     bool success = Engine::handlePiecePlacement(location, state, moves);
+    if (success) {
+      SoundManager::playSound(!state.isWhiteTurn ? SoundManager::WhiteMove
+                                                 : SoundManager::BlackMove);
+    }
     moves.clear();
 
     if (success) {

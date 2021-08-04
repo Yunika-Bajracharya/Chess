@@ -232,6 +232,57 @@ void Engine::placePiece(Move move, BoardState &state) {
     }
   }
 
+  // Weyy Pawn promotion
+  if (move.endPos.isPromotionSquare() && movingPiece->getTextureColumn() == 5) {
+
+    switch (move.promotion) {
+    case Promotion::Queen: {
+      // Piece *p = dynamic_cast<Queen *>(movingPiece);
+      Piece *p = dynamic_cast<Pawn *>(movingPiece)->toQueen();
+      if (p) {
+
+        state.board[move.endPos.i][move.endPos.j] = p;
+        p->id = movingPiece->id;
+
+        int playerIndex = state.isWhiteTurn ? 0 : 1;
+
+        for (auto i = state.players[playerIndex]->pieces.begin();
+             i != state.players[playerIndex]->pieces.end(); ++i) {
+          if (*i == movingPiece) {
+            state.players[playerIndex]->pieces.erase(i);
+            break;
+          }
+        }
+        state.players[playerIndex]->pieces.push_back(p);
+        delete movingPiece;
+        break;
+      }
+    }
+    default:
+      // Piece *p = dynamic_cast<Queen *>(movingPiece);
+
+      Piece *p = dynamic_cast<Pawn *>(movingPiece)->toQueen();
+      if (p) {
+
+        state.board[move.endPos.i][move.endPos.j] = p;
+        p->id = movingPiece->id;
+
+        int playerIndex = state.isWhiteTurn ? 0 : 1;
+
+        for (auto i = state.players[playerIndex]->pieces.begin();
+             i != state.players[playerIndex]->pieces.end(); ++i) {
+          if (*i == movingPiece) {
+            state.players[playerIndex]->pieces.erase(i);
+            break;
+          }
+        }
+        state.players[playerIndex]->pieces.push_back(p);
+        delete movingPiece;
+      }
+      break;
+    }
+  }
+
   // Change the turn
   state.isWhiteTurn = !state.isWhiteTurn;
 }

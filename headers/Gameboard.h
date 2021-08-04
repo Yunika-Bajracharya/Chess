@@ -10,6 +10,7 @@
 #include "Queen.h"
 #include "Rook.h"
 
+#include "SoundManager.h"
 #include "TextureManager.h"
 
 #include "GameState.h"

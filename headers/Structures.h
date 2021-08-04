@@ -3,6 +3,10 @@
 #include <string>
 #include <vector>
 
+namespace Promotion {
+enum promotion { None, Queen, Rook, Knight, Bishop };
+}
+
 struct Coordinate {
   int i, j;
 
@@ -12,6 +16,7 @@ struct Coordinate {
     } else
       return false;
   }
+  bool isPromotionSquare() { return (i == 0 || i == 7) ? true : false; }
 
   void display() {
     std::cout << "Pos: (" << i << ", " << j << ")" << std::endl;
@@ -50,6 +55,13 @@ struct Coordinate {
 struct Move {
   Coordinate startPos;
   Coordinate endPos;
+  Promotion::promotion promotion;
+
+  Move(Coordinate s, Coordinate e, Promotion::promotion p = Promotion::None)
+      : startPos(s), endPos(e) {
+    promotion = p;
+  }
+  Move() {}
 
   char *toBoardNotation(Coordinate positon) {
     char *temp = new char(3);
@@ -60,7 +72,12 @@ struct Move {
     return temp;
   }
   void display() {
-    std::cout << toBoardNotation(startPos) << toBoardNotation(endPos) << " ";
+    char *s = toBoardNotation(startPos);
+    char *e = toBoardNotation(endPos);
+    std::cout << s << e << " ";
+
+    delete[] s;
+    delete[] e;
   }
 };
 
