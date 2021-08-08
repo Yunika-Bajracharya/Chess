@@ -13,8 +13,11 @@ public:
    * Handle piece selection and piece placement
    */
 
-  static bool handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                   const std::vector<Move> moves);
+  static bool
+  handlePiecePlacement(Coordinate &destination, BoardState &state,
+                       const std::vector<Move> moves,
+                       Promotion::uiInfo &promotionInfo,
+                       Promotion::promotion promotionType = Promotion::None);
 
   // Returns true if the current player's king is under attack
   static bool canDirectAttackKing(const BoardState &state);

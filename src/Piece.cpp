@@ -39,7 +39,8 @@ int Piece::generateLegalMoves(const BoardState &state,
     BoardState newState = state; // Somehow make this a full copy
     newState.dragPieceLocation = move.startPos;
     newState.dragPieceId = state.getID(move.startPos);
-    Engine::handlePiecePlacement(move.endPos, newState, pseudoLegalMoves);
+    Promotion::uiInfo temp = {false, Coordinate({99, 99})};
+    Engine::handlePiecePlacement(move.endPos, newState, pseudoLegalMoves, temp);
 
     /*
      * TODO if our king is in direct line of fire from opponent,

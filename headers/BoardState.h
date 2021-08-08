@@ -22,6 +22,18 @@ struct BoardState {
   Player *players[2];
 
   Piece *getPiece(Coordinate location) { return board[location.i][location.j]; }
+  Piece *getPiece(int id) {
+    for (int i = 0; i < 2; i++) {
+      for (Piece *p : players[i]->pieces) {
+        if (p->getID() == id) {
+          return p;
+        }
+      }
+    }
+
+    return nullptr;
+  }
+
   bool isPieceWhite(Coordinate location) const {
     return board[location.i][location.j]->isWhite();
   }

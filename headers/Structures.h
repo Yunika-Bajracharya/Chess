@@ -1,11 +1,8 @@
 #pragma once
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-
-namespace Promotion {
-enum promotion { None, Queen, Rook, Knight, Bishop };
-}
 
 struct Coordinate {
   int i, j;
@@ -51,6 +48,14 @@ struct Coordinate {
     return *this;
   }
 };
+
+namespace Promotion {
+enum promotion { None, Queen, Rook, Knight, Bishop };
+struct uiInfo {
+  bool promotion;
+  Coordinate location;
+};
+} // namespace Promotion
 
 struct Move {
   Coordinate startPos;
