@@ -2,6 +2,7 @@
 #include "Structures.h"
 
 struct BoardState;
+class Engine;
 
 class Piece {
 public:
@@ -11,8 +12,8 @@ public:
 
   int generateLegalMoves(const BoardState &state, std::vector<Move> &moves);
 
-  virtual void generateAllMoves(const BoardState &state,
-                                std::vector<Move> &moves) = 0;
+  virtual int generateAllMoves(const BoardState &state,
+                               std::vector<Move> &moves) = 0;
 
   int getTextureColumn(); // The column refers to Gameboard.pieceTexture
   int getID();
@@ -30,6 +31,8 @@ public:
   static Coordinate slideDirectionOffset[8];
   static Coordinate knightDirectionOffset[8];
 
+  friend class Engine;
+
 protected:
   int id;
   Coordinate position;
@@ -43,8 +46,8 @@ public:
   SlidePiece(Coordinate pos, bool isColorWhite);
   ~SlidePiece();
 
-  void generateAllMoves(const BoardState &state,
-                        std::vector<Move> &moves) override;
+  int generateAllMoves(const BoardState &state,
+                       std::vector<Move> &moves) override;
 
 protected:
   int loopStartIndex;

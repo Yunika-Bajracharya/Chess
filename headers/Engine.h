@@ -3,6 +3,8 @@
 #include "Structures.h"
 #define ASCII_OFFSET 48
 
+class Test;
+
 class Engine {
 public:
   static void handleFENString(std::string fenString, BoardState &state);
@@ -11,8 +13,11 @@ public:
    * Handle piece selection and piece placement
    */
 
-  static bool handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                   const std::vector<Move> moves);
+  static bool
+  handlePiecePlacement(Coordinate &destination, BoardState &state,
+                       const std::vector<Move> moves,
+                       Promotion::uiInfo &promotionInfo,
+                       Promotion::promotion promotionType = Promotion::None);
 
   // Returns true if the current player's king is under attack
   static bool canDirectAttackKing(const BoardState &state);
@@ -24,6 +29,9 @@ public:
                           std::vector<std::vector<Move>> &allMovesSrc,
                           std::vector<Move> &movesDest);
 
+  friend class Test;
+
 private:
   static void addPiece(Piece *piece, BoardState &state);
+  static void placePiece(Move move, BoardState &state);
 };

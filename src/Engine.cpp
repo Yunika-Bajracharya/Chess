@@ -128,7 +128,9 @@ void Engine::addPiece(Piece *piece, BoardState &state) {
 }
 
 bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                  const std::vector<Move> moves) {
+                                  const std::vector<Move> moves,
+                                  Promotion::uiInfo &promotionInfo,
+                                  Promotion::promotion promotionType) {
 
   for (Move move : moves) {
     if (move.endPos == destination) {
@@ -145,74 +147,162 @@ bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
         continue;
       }
 
+      // This check exists because
+      // In piece.cpp there is a little bit of code
+      // And i want that code to completely ignore this part
+      if (!(promotionInfo.location.i == 99)) {
+        if (!promotionInfo.promotion && movingPiece->getTextureColumn() == 5 &&
+            move.endPos.isPromotionSquare()) {
+          promotionInfo.promotion = true;
+          promotionInfo.location = move.endPos;
+          return false;
+        }
+
+        if (promotionInfo.promotion && promotionType != move.promotion) {
+          continue;
+        }
+      }
+
       /* We make the move
        */
 
-      // If pawn made a enPassant
-      if (movingPiece->getTextureColumn() == 5) {
-        int distanceI = move.startPos.i - move.endPos.i;
-        if (state.isEmpty(move.endPos) && state.enPassantAvailable &&
-            move.endPos == state.enPassant) {
-          // we know this has to be a enPassant
-          Piece *pieceToEnPassant =
-              state.getPiece(destination + Coordinate({distanceI, 0}));
-
-          pieceToEnPassant->getCaptured();
-          state.board[destination.i + distanceI][destination.j] = nullptr;
-        }
-      }
-
-      // Capture the piece if there is one
-      if (state.getPiece(destination)) {
-        state.getPiece(destination)->getCaptured();
-      }
-
-      // Move the piece to the new location
-      state.board[startPos.i][startPos.j] = nullptr;
-      state.board[destination.i][destination.j] = movingPiece;
-      movingPiece->moveTo(destination);
-
-      // If the move was a castle, casteling
-      // TODO Remeber to remove castleability
-      if (movingPiece->getTextureColumn() == 0) {
-        if (move.startPos.j - move.endPos.j == -2) {
-          Coordinate rookPos = {move.endPos.i, move.endPos.j + 1};
-          Piece *rook = state.getPiece(rookPos);
-          rookPos = {move.endPos.i, move.endPos.j - 1};
-          state.board[rookPos.i][rookPos.j] = rook;
-          rook->moveTo(rookPos);
-        } else if (move.startPos.j - move.endPos.j == 2) {
-          Coordinate rookPos = {move.endPos.i, move.endPos.j - 2};
-          Piece *rook = state.getPiece(rookPos);
-          rookPos = {move.endPos.i, move.endPos.j + 1};
-          state.board[rookPos.i][rookPos.j] = rook;
-          rook->moveTo(rookPos);
-        }
-        // now no casle
-        if (movingPiece->isWhite()) {
-          state.CastleAvailability[0] = false;
-          state.CastleAvailability[1] = false;
-        } else {
-          state.CastleAvailability[2] = false;
-          state.CastleAvailability[3] = false;
-        }
-      }
-
-      // If pawn moves 2 squares
-      state.enPassantAvailable = false;
-      if (movingPiece->getTextureColumn() == 5) {
-        int distanceI = move.startPos.i - move.endPos.i;
-        if (distanceI == 2 || distanceI == -2) {
-          state.enPassantAvailable = true;
-          state.enPassant = move.endPos + Coordinate({distanceI / 2, 0});
-        }
-      }
-      // Change the turn
-      state.isWhiteTurn = !state.isWhiteTurn;
+      placePiece(move, state);
       return true;
     }
   }
   return false;
+}
+void Engine::placePiece(Move move, BoardState &state) {
+  Piece *movingPiece = state.getPiece(move.startPos);
+  // Moves the piece with no checks
+
+  // If pawn made a enPassant
+  if (movingPiece->getTextureColumn() == 5) {
+    int distanceI = move.startPos.i - move.endPos.i;
+    if (state.isEmpty(move.endPos) && state.enPassantAvailable &&
+        move.endPos == state.enPassant) {
+      // we know this has to be a enPassant
+      Piece *pieceToEnPassant =
+          state.getPiece(move.endPos + Coordinate({distanceI, 0}));
+
+      pieceToEnPassant->getCaptured();
+      state.board[move.endPos.i + distanceI][move.endPos.j] = nullptr;
+    }
+  }
+
+  // Capture the piece if there is one
+  Piece *destinationPiece = state.getPiece(move.endPos);
+  if (destinationPiece) {
+    destinationPiece->getCaptured();
+
+    if (destinationPiece->getTextureColumn() == 4) {
+      int colorOffset = destinationPiece->isWhite() ? 0 : 2;
+      int positionOffset = destinationPiece->getCoordinate().j == 0 ? 1 : 0;
+      state.CastleAvailability[colorOffset + positionOffset] = false;
+    }
+  }
+
+  // Move the piece to the new location
+  state.board[move.startPos.i][move.startPos.j] = nullptr;
+  state.board[move.endPos.i][move.endPos.j] = movingPiece;
+  movingPiece->moveTo(move.endPos);
+
+  // If the move was a castle, casteling
+  // TODO Remeber to remove castleability
+  if (movingPiece->getTextureColumn() == 0) {
+    if (move.startPos.j - move.endPos.j == -2) {
+      Coordinate rookPos = {move.endPos.i, move.endPos.j + 1};
+      Piece *rook = state.getPiece(rookPos);
+      rookPos = {move.endPos.i, move.endPos.j - 1};
+      state.board[rookPos.i][rookPos.j] = rook;
+      rook->moveTo(rookPos);
+    } else if (move.startPos.j - move.endPos.j == 2) {
+      Coordinate rookPos = {move.endPos.i, move.endPos.j - 2};
+      Piece *rook = state.getPiece(rookPos);
+      rookPos = {move.endPos.i, move.endPos.j + 1};
+      state.board[rookPos.i][rookPos.j] = rook;
+      rook->moveTo(rookPos);
+    }
+    // now no castle
+    if (movingPiece->isWhite()) {
+      state.CastleAvailability[0] = false;
+      state.CastleAvailability[1] = false;
+    } else {
+      state.CastleAvailability[2] = false;
+      state.CastleAvailability[3] = false;
+    }
+  }
+
+  // If pawn moves 2 squares
+  state.enPassantAvailable = false;
+  if (movingPiece->getTextureColumn() == 5) {
+    int distanceI = move.startPos.i - move.endPos.i;
+    if (distanceI == 2 || distanceI == -2) {
+      state.enPassantAvailable = true;
+      state.enPassant = move.endPos + Coordinate({distanceI / 2, 0});
+    }
+  }
+
+  // If rook moved, now we cannot castle
+  if (movingPiece->getTextureColumn() == 4) {
+    int colorBuffer = movingPiece->isWhite() ? 0 : 2;
+    if (state.CastleAvailability[0 + colorBuffer] ||
+        state.CastleAvailability[1 + colorBuffer]) {
+      if (move.startPos.j == 0) {
+        state.CastleAvailability[1 + colorBuffer] = false;
+      }
+      if (move.startPos.j == 7) {
+        state.CastleAvailability[0 + colorBuffer] = false;
+      }
+    }
+  }
+
+  // Weyy Pawn promotion
+  if (move.endPos.isPromotionSquare() && movingPiece->getTextureColumn() == 5) {
+
+    Piece *p = nullptr;
+    switch (move.promotion) {
+    case Promotion::Queen: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toQueen();
+      break;
+    }
+    case Promotion::Rook: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toRook();
+      break;
+    }
+    case Promotion::Bishop: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toBishop();
+      break;
+    }
+    case Promotion::Knight: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toKnight();
+      break;
+    }
+    default:
+      p = dynamic_cast<Queen *>(movingPiece);
+      break;
+    }
+
+    if (p) {
+      state.board[move.endPos.i][move.endPos.j] = p;
+      p->id = movingPiece->id;
+
+      int playerIndex = state.isWhiteTurn ? 0 : 1;
+
+      for (auto i = state.players[playerIndex]->pieces.begin();
+           i != state.players[playerIndex]->pieces.end(); ++i) {
+        if (*i == movingPiece) {
+          state.players[playerIndex]->pieces.erase(i);
+          break;
+        }
+      }
+      state.players[playerIndex]->pieces.push_back(p);
+      delete movingPiece;
+    }
+  }
+
+  // Change the turn
+  state.isWhiteTurn = !state.isWhiteTurn;
 }
 
 int Engine::generateAllMoves(const BoardState &state,
@@ -229,7 +319,11 @@ int Engine::generateAllMoves(const BoardState &state,
   std::vector<Move> moves;
 
   for (Piece *p : state.players[playerIndex]->pieces) {
+    if (p->isCaptured())
+      continue;
+
     count += p->generateLegalMoves(state, moves);
+    // count += p->generateAllMoves(state, moves);
     allMoves.push_back(moves);
     moves.clear();
   }

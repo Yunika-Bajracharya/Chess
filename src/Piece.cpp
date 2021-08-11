@@ -39,10 +39,42 @@ int Piece::generateLegalMoves(const BoardState &state,
     BoardState newState = state; // Somehow make this a full copy
     newState.dragPieceLocation = move.startPos;
     newState.dragPieceId = state.getID(move.startPos);
-    Engine::handlePiecePlacement(move.endPos, newState, pseudoLegalMoves);
+    Promotion::uiInfo temp = {false, Coordinate({99, 99})};
+
+    Piece *p = newState.getPiece(move.startPos);
+    /*
+     * TODO Fix Casteling
+     * If the king is in check (direct line of fire) or any square along the
+     * path is, not castleable
+     *
+     * if the moving piece is a king, we check if it is under direct line of
+     * fire, if it is, we disable all casteling moves
+     *
+     */
+    if (p->getTextureColumn() == 0 && (move.startPos.j - move.endPos.j > 1 ||
+                                       move.startPos.j - move.endPos.j < -1)) {
+      newState.isWhiteTurn = !newState.isWhiteTurn;
+      if (Engine::canDirectAttackKing(newState)) {
+        continue;
+      }
+      newState.isWhiteTurn = !newState.isWhiteTurn;
+
+      // Since the side movement moves are checked before casteling
+      // We can see if the side movement moves are legal, if so, do casteling
+      int directionJ = move.endPos.j - move.startPos.j;
+      bool found = false;
+      for (Move move : moves) {
+        if (move.endPos.j - move.startPos.j == directionJ / 2)
+          found = true;
+      }
+      if (!found)
+        continue;
+    }
+
+    Engine::handlePiecePlacement(move.endPos, newState, pseudoLegalMoves, temp);
 
     /*
-     * TODO if our king is in direct line of fire from opponent,
+     * if our king is in direct line of fire from opponent,
      * bad move we no add
      */
     if (!Engine::canDirectAttackKing(newState)) {
@@ -77,9 +109,10 @@ SlidePiece::SlidePiece(Coordinate pos, bool isColorWhite)
     : Piece(pos, isColorWhite) {}
 SlidePiece::~SlidePiece() {}
 
-void SlidePiece::generateAllMoves(const BoardState &state,
-                                  std::vector<Move> &moves) {
+int SlidePiece::generateAllMoves(const BoardState &state,
+                                 std::vector<Move> &moves) {
   moves.clear();
+  int count = 0;
   for (int i = loopStartIndex; i < loopStopIndex; i++) {
     Coordinate tempPos = position;
     tempPos += slideDirectionOffset[i];
@@ -103,10 +136,12 @@ void SlidePiece::generateAllMoves(const BoardState &state,
       moves.push_back(m);
 
       tempPos += slideDirectionOffset[i];
+      count++;
 
       if (captureTime) {
         break;
       }
     }
   }
+  return count;
 }
