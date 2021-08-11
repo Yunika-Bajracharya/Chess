@@ -39,10 +39,14 @@ private:
   std::vector<Move> moves;
   std::vector<std::vector<Move>> allMoves;
   Promotion::uiInfo promotionInfo;
+  bool checkInfo, checkMateInfo;
 
   Move lastMove;
   Player *players[2];
+  int playerTime[2];
 
   SDL_Texture *playerNamesTexture[2]; // Stores the texture of name of players
   SDL_Texture *pieceTexture;          // Stores texture of all pieces
+  SDL_Texture *checkTexture, *checkMateTexture;
+  SDL_Texture *wonTexture;
 };
