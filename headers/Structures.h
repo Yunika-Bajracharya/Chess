@@ -50,6 +50,7 @@ struct Coordinate {
 struct Move {
   Coordinate startPos;
   Coordinate endPos;
+  bool made;
 };
 
 // Stores all the moves

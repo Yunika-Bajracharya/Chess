@@ -104,6 +104,14 @@ void Gameboard::render() {
       destRect.x = boardStartPos.j + j * BLOCK_WIDTH;
       destRect.y = boardStartPos.i + i * BLOCK_WIDTH;
       SDL_RenderFillRect(Game::renderer, &destRect);
+
+      if (lastMove.made) {
+        if (lastMove.endPos == Coordinate({j, i}) || lastMove.startPos == Coordinate({j,i})) {
+          SDL_SetRenderDrawColor(Game::renderer, 255, 255, 0, 200);
+          SDL_RenderFillRect(Game::renderer, &destRect);
+        }
+      }
+
     }
   }
 

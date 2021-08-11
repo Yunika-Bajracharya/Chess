@@ -38,6 +38,7 @@ private:
   std::vector<Move> moves;
   std::vector<std::vector<Move>> allMoves;
 
+  Move lastMove;
   Player *players[2];
 
   SDL_Texture *playerNamesTexture[2]; // Stores the texture of name of players
