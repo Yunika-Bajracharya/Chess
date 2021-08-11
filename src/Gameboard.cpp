@@ -142,7 +142,7 @@ void Gameboard::render() {
   SDL_Rect destRect; // where to render
   SDL_Rect srcRect;  // from where we render
 
-  u_int8_t renderAlpha = promotionInfo.promotion ? 150 : 255;
+  int renderAlpha = promotionInfo.promotion ? 150 : 255;
   if (promotionInfo.promotion) {
     SDL_SetTextureAlphaMod(pieceTexture, renderAlpha);
     SDL_SetTextureAlphaMod(playerNamesTexture[0], renderAlpha);
