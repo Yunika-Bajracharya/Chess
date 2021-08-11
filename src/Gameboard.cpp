@@ -44,7 +44,6 @@ void Gameboard::init() {
   state.players[0] = new Player("Suban", true);
   state.players[1] = new Player("Prabin", false);
   playerTime[0] = playerTime[1] = timeInMinutes * 60 * FPS;
-  playerTime[1] = 20 * FPS;
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
@@ -257,6 +256,7 @@ void Gameboard::render() {
 
   srcRect.h = srcRect.w = 200;
   int capturedPieceOffset[2] = {0, 0};
+  int capturedPieceOffsetHeight[2] = {0, 0};
   for (int i = 0; i < 2; i++) {
     for (Piece *piece : state.players[i]->pieces) {
       // If white lower row, if black upper row
@@ -270,7 +270,9 @@ void Gameboard::render() {
 
         destRect.x =
             rightSideRenderingInitialPosition + capturedPieceOffset[index];
-        destRect.y = (i == 0) ? 0.2 * WINDOW_HEIGHT : 0.7 * WINDOW_HEIGHT;
+        destRect.y =
+            (i == 0) ? 0.2 * WINDOW_HEIGHT + capturedPieceOffsetHeight[index]
+                     : 0.7 * WINDOW_HEIGHT - capturedPieceOffsetHeight[index];
 
         // We just chaned destRect's w, h
         destRect.h = destRect.w = offsetIncrease;
@@ -279,7 +281,13 @@ void Gameboard::render() {
 
         destRect.h = destRect.w = BLOCK_WIDTH; // We restored it
 
-        capturedPieceOffset[index] += offsetIncrease;
+        if (destRect.x + capturedPieceOffset[index] > WINDOW_WIDTH) {
+          capturedPieceOffset[index] = 0;
+          capturedPieceOffsetHeight[index] += offsetIncrease;
+        } else {
+          capturedPieceOffset[index] += offsetIncrease;
+        }
+
         continue;
       }
 
