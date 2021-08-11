@@ -4,6 +4,11 @@
 #include <string>
 #include <vector>
 
+struct lastMoveInfo {
+  bool success;
+  bool check;
+};
+
 struct Coordinate {
   int i, j;
 

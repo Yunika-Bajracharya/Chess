@@ -13,7 +13,7 @@ public:
    * Handle piece selection and piece placement
    */
 
-  static bool
+  static lastMoveInfo
   handlePiecePlacement(Coordinate &destination, BoardState &state,
                        const std::vector<Move> moves,
                        Promotion::uiInfo &promotionInfo,
@@ -33,5 +33,5 @@ public:
 
 private:
   static void addPiece(Piece *piece, BoardState &state);
-  static void placePiece(Move move, BoardState &state);
+  static bool placePiece(Move move, BoardState &state);
 };
