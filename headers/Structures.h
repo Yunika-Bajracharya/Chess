@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -12,6 +13,7 @@ struct Coordinate {
     } else
       return false;
   }
+  bool isPromotionSquare() { return (i == 0 || i == 7) ? true : false; }
 
   void display() {
     std::cout << "Pos: (" << i << ", " << j << ")" << std::endl;
@@ -47,10 +49,42 @@ struct Coordinate {
   }
 };
 
+namespace Promotion {
+enum promotion { None, Queen, Rook, Knight, Bishop };
+struct uiInfo {
+  bool promotion;
+  Coordinate location;
+};
+} // namespace Promotion
+
 struct Move {
   Coordinate startPos;
   Coordinate endPos;
   bool made;
+  Promotion::promotion promotion;
+
+  Move(Coordinate s, Coordinate e, Promotion::promotion p = Promotion::None)
+      : startPos(s), endPos(e) {
+    promotion = p;
+  }
+  Move() {}
+
+  char *toBoardNotation(Coordinate positon) {
+    char *temp = new char(3);
+    temp[0] = positon.j + 97;                         // The first letter
+    temp[1] = ((positon.i + 8) - 2 * positon.i) + 48; // The number
+    temp[2] = '\0';
+
+    return temp;
+  }
+  void display() {
+    char *s = toBoardNotation(startPos);
+    char *e = toBoardNotation(endPos);
+    std::cout << s << e << " ";
+
+    delete[] s;
+    delete[] e;
+  }
 };
 
 // Stores all the moves

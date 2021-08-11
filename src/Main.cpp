@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     using std::chrono::milliseconds;
 
     for (int i = 0; i < 5; i++) {
-      std::cout << "Depth: " << i << std::endl;
+      std::cout << "Depth: " << i + 1 << std::endl;
       std::cout << "Number of Positions: ";
 
       auto t1 = high_resolution_clock::now();
@@ -53,5 +53,9 @@ int main(int argc, char *argv[]) {
 
       std::cout << "Time taken: " << ms_int.count() << " ms" << std::endl;
     }
+  }
+  if (argc == 3) {
+    Test t;
+    t.generateAllMoves(DEPTH, true);
   }
 }

@@ -128,7 +128,9 @@ void Engine::addPiece(Piece *piece, BoardState &state) {
 }
 
 bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                  const std::vector<Move> moves) {
+                                  const std::vector<Move> moves,
+                                  Promotion::uiInfo &promotionInfo,
+                                  Promotion::promotion promotionType) {
 
   for (Move move : moves) {
     if (move.endPos == destination) {
@@ -143,6 +145,22 @@ bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       if (!movingPiece) {
         // We fked up somewhere
         continue;
+      }
+
+      // This check exists because
+      // In piece.cpp there is a little bit of code
+      // And i want that code to completely ignore this part
+      if (!(promotionInfo.location.i == 99)) {
+        if (!promotionInfo.promotion && movingPiece->getTextureColumn() == 5 &&
+            move.endPos.isPromotionSquare()) {
+          promotionInfo.promotion = true;
+          promotionInfo.location = move.endPos;
+          return false;
+        }
+
+        if (promotionInfo.promotion && promotionType != move.promotion) {
+          continue;
+        }
       }
 
       /* We make the move
@@ -173,8 +191,15 @@ void Engine::placePiece(Move move, BoardState &state) {
   }
 
   // Capture the piece if there is one
-  if (state.getPiece(move.endPos)) {
-    state.getPiece(move.endPos)->getCaptured();
+  Piece *destinationPiece = state.getPiece(move.endPos);
+  if (destinationPiece) {
+    destinationPiece->getCaptured();
+
+    if (destinationPiece->getTextureColumn() == 4) {
+      int colorOffset = destinationPiece->isWhite() ? 0 : 2;
+      int positionOffset = destinationPiece->getCoordinate().j == 0 ? 1 : 0;
+      state.CastleAvailability[colorOffset + positionOffset] = false;
+    }
   }
 
   // Move the piece to the new location
@@ -229,6 +254,50 @@ void Engine::placePiece(Move move, BoardState &state) {
       if (move.startPos.j == 7) {
         state.CastleAvailability[0 + colorBuffer] = false;
       }
+    }
+  }
+
+  // Weyy Pawn promotion
+  if (move.endPos.isPromotionSquare() && movingPiece->getTextureColumn() == 5) {
+
+    Piece *p = nullptr;
+    switch (move.promotion) {
+    case Promotion::Queen: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toQueen();
+      break;
+    }
+    case Promotion::Rook: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toRook();
+      break;
+    }
+    case Promotion::Bishop: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toBishop();
+      break;
+    }
+    case Promotion::Knight: {
+      p = dynamic_cast<Pawn *>(movingPiece)->toKnight();
+      break;
+    }
+    default:
+      p = dynamic_cast<Queen *>(movingPiece);
+      break;
+    }
+
+    if (p) {
+      state.board[move.endPos.i][move.endPos.j] = p;
+      p->id = movingPiece->id;
+
+      int playerIndex = state.isWhiteTurn ? 0 : 1;
+
+      for (auto i = state.players[playerIndex]->pieces.begin();
+           i != state.players[playerIndex]->pieces.end(); ++i) {
+        if (*i == movingPiece) {
+          state.players[playerIndex]->pieces.erase(i);
+          break;
+        }
+      }
+      state.players[playerIndex]->pieces.push_back(p);
+      delete movingPiece;
     }
   }
 

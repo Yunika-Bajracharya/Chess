@@ -2,6 +2,7 @@
 #include "Structures.h"
 
 struct BoardState;
+class Engine;
 
 class Piece {
 public:
@@ -29,6 +30,8 @@ public:
 
   static Coordinate slideDirectionOffset[8];
   static Coordinate knightDirectionOffset[8];
+
+  friend class Engine;
 
 protected:
   int id;

@@ -29,13 +29,15 @@ int King::generateAllMoves(const BoardState &state, std::vector<Move> &moves) {
          */
         if (i == 2 || i == 3) {
           int castleCheckOffset = isColorWhite ? 0 : 2;
-          if (i == 3 && state.CastleAvailability[0 + castleCheckOffset]) {
+          if (i == 3 && state.CastleAvailability[0 + castleCheckOffset] &&
+              state.isEmpty(tempPos)) {
             tempPos += slideDirectionOffset[i];
             if (state.isEmpty(tempPos)) {
               moves.push_back({position, tempPos});
             }
           } else if (i == 2 &&
-                     state.CastleAvailability[1 + castleCheckOffset]) {
+                     state.CastleAvailability[1 + castleCheckOffset] &&
+                     state.isEmpty(tempPos)) {
             tempPos += slideDirectionOffset[i];
             if (state.isEmpty(tempPos) &&
                 state.isEmpty(tempPos + Coordinate{0, -1})) {

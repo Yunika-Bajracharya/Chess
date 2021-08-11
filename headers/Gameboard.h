@@ -10,6 +10,7 @@
 #include "Queen.h"
 #include "Rook.h"
 
+#include "SoundManager.h"
 #include "TextureManager.h"
 
 #include "GameState.h"
@@ -37,6 +38,7 @@ private:
   Coordinate boardStartPos; // The top left edge of board
   std::vector<Move> moves;
   std::vector<std::vector<Move>> allMoves;
+  Promotion::uiInfo promotionInfo;
 
   Move lastMove;
   Player *players[2];
