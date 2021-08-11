@@ -127,10 +127,11 @@ void Engine::addPiece(Piece *piece, BoardState &state) {
   state.board[c.i][c.j] = piece;
 }
 
-bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
-                                  const std::vector<Move> moves,
-                                  Promotion::uiInfo &promotionInfo,
-                                  Promotion::promotion promotionType) {
+lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
+                                          BoardState &state,
+                                          const std::vector<Move> moves,
+                                          Promotion::uiInfo &promotionInfo,
+                                          Promotion::promotion promotionType) {
 
   for (Move move : moves) {
     if (move.endPos == destination) {
@@ -155,7 +156,7 @@ bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
             move.endPos.isPromotionSquare()) {
           promotionInfo.promotion = true;
           promotionInfo.location = move.endPos;
-          return false;
+          return {false, false};
         }
 
         if (promotionInfo.promotion && promotionType != move.promotion) {
@@ -166,13 +167,13 @@ bool Engine::handlePiecePlacement(Coordinate &destination, BoardState &state,
       /* We make the move
        */
 
-      placePiece(move, state);
-      return true;
+      bool check = placePiece(move, state);
+      return {true, check};
     }
   }
-  return false;
+  return {false, false};
 }
-void Engine::placePiece(Move move, BoardState &state) {
+bool Engine::placePiece(Move move, BoardState &state) {
   Piece *movingPiece = state.getPiece(move.startPos);
   // Moves the piece with no checks
 
@@ -301,8 +302,11 @@ void Engine::placePiece(Move move, BoardState &state) {
     }
   }
 
+  bool check = canDirectAttackKing(state);
   // Change the turn
   state.isWhiteTurn = !state.isWhiteTurn;
+
+  return check;
 }
 
 int Engine::generateAllMoves(const BoardState &state,

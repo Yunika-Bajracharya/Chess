@@ -1,5 +1,6 @@
 #include "../headers/Gameboard.h"
 #include "../headers/Engine.h"
+#include <SDL2/SDL_render.h>
 #define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 namespace Promotion {
@@ -9,8 +10,8 @@ std::map<int, promotion> promotionMap{
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, Promotion::uiInfo &promotionInfo,
-              int promotionID = 0);
+              std::vector<Move> &moves, bool &checkInfo, bool &checkMateInfo,
+              Promotion::uiInfo &promotionInfo, int promotionID = 0);
 
 Gameboard::Gameboard() {}
 
@@ -18,6 +19,9 @@ Gameboard::~Gameboard() {
   SDL_DestroyTexture(playerNamesTexture[0]);
   SDL_DestroyTexture(playerNamesTexture[1]);
   SDL_DestroyTexture(pieceTexture);
+  SDL_DestroyTexture(checkTexture);
+  SDL_DestroyTexture(checkMateTexture);
+  SDL_DestroyTexture(wonTexture);
 }
 
 void Gameboard::init() {
@@ -44,6 +48,14 @@ void Gameboard::init() {
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
 
+  /*
+   *  Load some words
+   */
+  checkTexture = TextureManager::loadSentence("Check");
+  checkMateTexture = TextureManager::loadSentence("Checkmate");
+  checkInfo = checkMateInfo = false;
+  wonTexture = TextureManager::loadSentence("WON");
+
   allMoves.clear();
   Engine::generateAllMoves(state, allMoves);
 }
@@ -67,8 +79,8 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
           if (location.i == promotionInfo.location.i + direction * i) {
             moves.push_back({state.dragPieceLocation, promotionInfo.location,
                              Promotion::promotionMap[i + 1]});
-            makeMove(promotionInfo.location, state, allMoves, moves,
-                     promotionInfo, i + 1);
+            makeMove(promotionInfo.location, state, allMoves, moves, checkInfo,
+                     checkMateInfo, promotionInfo, i + 1);
             promotionInfo.promotion = false;
           }
         }
@@ -102,7 +114,8 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
   if (event.button.button == SDL_BUTTON_LEFT) {
-    makeMove(location, state, allMoves, moves, promotionInfo);
+    makeMove(location, state, allMoves, moves, checkInfo, checkMateInfo,
+             promotionInfo);
     moves.clear();
   }
   state.dragPieceId = 0;
@@ -110,8 +123,8 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, Promotion::uiInfo &promotionInfo,
-              int promotionID) {
+              std::vector<Move> &moves, bool &checkInfo, bool &checkMateInfo,
+              Promotion::uiInfo &promotionInfo, int promotionID) {
 
   Promotion::promotion promotion = Promotion::None;
   // handlePromotionindex
@@ -119,18 +132,21 @@ void makeMove(Coordinate location, BoardState &state,
     promotion = Promotion::promotionMap[promotionID];
   }
 
-  bool success = Engine::handlePiecePlacement(location, state, moves,
-                                              promotionInfo, promotion);
+  lastMoveInfo info = Engine::handlePiecePlacement(location, state, moves,
+                                                   promotionInfo, promotion);
 
-  if (success) {
+  if (info.success) {
     SoundManager::playSound(!state.isWhiteTurn ? SoundManager::WhiteMove
                                                : SoundManager::BlackMove);
   }
   moves.clear();
-  if (success) {
+  if (info.success) {
+    checkInfo = info.check;
+
     int count = Engine::generateAllMoves(state, allMoves);
     if (count == 0) {
       std::cout << "Checkmate!!!" << std::endl;
+      checkMateInfo = true;
     }
   }
 }
@@ -141,6 +157,8 @@ void Gameboard::render() {
 
   SDL_Rect destRect; // where to render
   SDL_Rect srcRect;  // from where we render
+  int rightSideRenderingInitialPosition =
+      (float)WINDOW_WIDTH / 2 + 4.5 * BLOCK_WIDTH;
 
   u_int8_t renderAlpha = promotionInfo.promotion ? 150 : 255;
   if (promotionInfo.promotion) {
@@ -210,7 +228,7 @@ void Gameboard::render() {
         int offsetIncrease = BLOCK_WIDTH / 2;
 
         destRect.x =
-            WINDOW_WIDTH / 2 + 5 * BLOCK_WIDTH + capturedPieceOffset[index];
+            rightSideRenderingInitialPosition + capturedPieceOffset[index];
         destRect.y = (i == 0) ? 0.2 * WINDOW_HEIGHT : 0.7 * WINDOW_HEIGHT;
 
         // We just chaned destRect's w, h
@@ -246,15 +264,34 @@ void Gameboard::render() {
    */
 
   // Render Player Names
-  destRect.x = WINDOW_WIDTH / 2 + 5 * BLOCK_WIDTH;
   for (int i = 0; i < 2; i++) {
-    destRect.y = (i == 0) ? 0.1 * WINDOW_HEIGHT : 0.8 * WINDOW_HEIGHT;
+    destRect.x = rightSideRenderingInitialPosition;
+    destRect.y = (i == 1) ? 0.1 * WINDOW_HEIGHT : 0.8 * WINDOW_HEIGHT;
 
     // Gets the size of font width and height
     SDL_QueryTexture(playerNamesTexture[i], NULL, NULL, &destRect.w,
                      &destRect.h);
 
     SDL_RenderCopy(Game::renderer, playerNamesTexture[i], NULL, &destRect);
+
+    if (checkMateInfo && state.isWhiteTurn == i) {
+      destRect.x += destRect.w + WINDOW_WIDTH / 10;
+      SDL_QueryTexture(wonTexture, NULL, NULL, &destRect.w, &destRect.h);
+      SDL_RenderCopy(Game::renderer, wonTexture, NULL, &destRect);
+    }
+  }
+
+  destRect.x = rightSideRenderingInitialPosition;
+  if (checkMateInfo) {
+    destRect.y = 0.45 * WINDOW_HEIGHT;
+    SDL_QueryTexture(checkMateTexture, NULL, NULL, &destRect.w, &destRect.h);
+    SDL_RenderCopy(Game::renderer, checkMateTexture, NULL, &destRect);
+  } else {
+    if (checkInfo) {
+      destRect.y = 0.45 * WINDOW_HEIGHT;
+      SDL_QueryTexture(checkTexture, NULL, NULL, &destRect.w, &destRect.h);
+      SDL_RenderCopy(Game::renderer, checkTexture, NULL, &destRect);
+    }
   }
 
   // Render Promotion Info
