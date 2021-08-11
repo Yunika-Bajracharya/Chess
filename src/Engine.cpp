@@ -191,8 +191,15 @@ void Engine::placePiece(Move move, BoardState &state) {
   }
 
   // Capture the piece if there is one
-  if (state.getPiece(move.endPos)) {
-    state.getPiece(move.endPos)->getCaptured();
+  Piece *destinationPiece = state.getPiece(move.endPos);
+  if (destinationPiece) {
+    destinationPiece->getCaptured();
+
+    if (destinationPiece->getTextureColumn() == 4) {
+      int colorOffset = destinationPiece->isWhite() ? 0 : 2;
+      int positionOffset = destinationPiece->getCoordinate().j == 0 ? 1 : 0;
+      state.CastleAvailability[colorOffset + positionOffset] = false;
+    }
   }
 
   // Move the piece to the new location

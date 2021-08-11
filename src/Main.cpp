@@ -53,7 +53,9 @@ int main(int argc, char *argv[]) {
 
       std::cout << "Time taken: " << ms_int.count() << " ms" << std::endl;
     }
-
-    // t.generateAllMoves(1, true);
+  }
+  if (argc == 3) {
+    Test t;
+    t.generateAllMoves(DEPTH, true);
   }
 }
