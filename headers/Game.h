@@ -19,6 +19,7 @@ enum State {
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
 #define BLOCK_WIDTH 80
+#define FPS 60
 
 class Game {
 

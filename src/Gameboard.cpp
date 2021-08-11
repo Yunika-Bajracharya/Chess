@@ -8,6 +8,8 @@ std::map<int, promotion> promotionMap{
     {0, None}, {1, Queen}, {2, Bishop}, {3, Knight}, {4, Rook}};
 }
 
+void clockTickToTime(int clock, int timeInfo[4]);
+
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
               std::vector<Move> &moves, bool &checkInfo, bool &checkMateInfo,
@@ -22,9 +24,15 @@ Gameboard::~Gameboard() {
   SDL_DestroyTexture(checkTexture);
   SDL_DestroyTexture(checkMateTexture);
   SDL_DestroyTexture(wonTexture);
+  for (int i = 0; i < 10; i++) {
+    SDL_DestroyTexture(numberTextures[i]);
+  }
+  SDL_DestroyTexture(colonTexture);
+  SDL_DestroyTexture(outOfTimeTexture);
 }
 
 void Gameboard::init() {
+  int timeInMinutes = 10;
   state = BoardState();
   promotionInfo.promotion = false;
 
@@ -35,6 +43,8 @@ void Gameboard::init() {
   // Creating Players
   state.players[0] = new Player("Suban", true);
   state.players[1] = new Player("Prabin", false);
+  playerTime[0] = playerTime[1] = timeInMinutes * 60 * FPS;
+  playerTime[1] = 20 * FPS;
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
@@ -49,12 +59,19 @@ void Gameboard::init() {
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
 
   /*
-   *  Load some words
+   *  Load some word textures
    */
   checkTexture = TextureManager::loadSentence("Check");
   checkMateTexture = TextureManager::loadSentence("Checkmate");
   checkInfo = checkMateInfo = false;
   wonTexture = TextureManager::loadSentence("WON");
+  for (int i = 0; i < 10; i++) {
+    char num = i + ASCII_OFFSET;
+    numberTextures[i] = TextureManager::loadSentence(&num);
+  }
+  colonTexture = TextureManager::loadSentence(":");
+  outOfTimeTexture = TextureManager::loadSentence("Out of time.");
+  outOfTime = false;
 
   allMoves.clear();
   Engine::generateAllMoves(state, allMoves);
@@ -65,6 +82,10 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
   int x = event.button.x - boardStartPos.j;
   int y = event.button.y - boardStartPos.i;
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
+
+  if (outOfTime) {
+    return;
+  }
 
   if (event.button.button == SDL_BUTTON_LEFT) {
     if (location.isValidBoardIndex()) {
@@ -113,6 +134,10 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
   int y = event.button.y - boardStartPos.i;
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
+  if (outOfTime) {
+    return;
+  }
+
   if (event.button.button == SDL_BUTTON_LEFT) {
     makeMove(location, state, allMoves, moves, checkInfo, checkMateInfo,
              promotionInfo);
@@ -151,7 +176,15 @@ void makeMove(Coordinate location, BoardState &state,
   }
 }
 
-void Gameboard::update() {}
+void Gameboard::update() {
+  if (!checkMateInfo) {
+    playerTime[!state.isWhiteTurn]--;
+    if (playerTime[!state.isWhiteTurn] < 0) {
+      outOfTime = true;
+      playerTime[!state.isWhiteTurn] = 0;
+    }
+  }
+}
 
 void Gameboard::render() {
 
@@ -181,12 +214,12 @@ void Gameboard::render() {
       SDL_RenderFillRect(Game::renderer, &destRect);
 
       if (lastMove.made) {
-        if (lastMove.endPos == Coordinate({j, i}) || lastMove.startPos == Coordinate({j,i})) {
+        if (lastMove.endPos == Coordinate({j, i}) ||
+            lastMove.startPos == Coordinate({j, i})) {
           SDL_SetRenderDrawColor(Game::renderer, 255, 255, 0, 200);
           SDL_RenderFillRect(Game::renderer, &destRect);
         }
       }
-
     }
   }
 
@@ -274,7 +307,8 @@ void Gameboard::render() {
   // Render Player Names
   for (int i = 0; i < 2; i++) {
     destRect.x = rightSideRenderingInitialPosition;
-    destRect.y = (i == 1) ? 0.1 * WINDOW_HEIGHT : 0.8 * WINDOW_HEIGHT;
+    destRect.y = (i == 0) ? 0.85 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
+    float timeDataDirection = i == 1 ? 1.1 : -1.1;
 
     // Gets the size of font width and height
     SDL_QueryTexture(playerNamesTexture[i], NULL, NULL, &destRect.w,
@@ -282,23 +316,48 @@ void Gameboard::render() {
 
     SDL_RenderCopy(Game::renderer, playerNamesTexture[i], NULL, &destRect);
 
-    if (checkMateInfo && state.isWhiteTurn == i) {
-      destRect.x += destRect.w + WINDOW_WIDTH / 10;
+    if ((checkMateInfo || outOfTime) && state.isWhiteTurn == i) {
+      destRect.x += destRect.w + BLOCK_WIDTH / 4;
       SDL_QueryTexture(wonTexture, NULL, NULL, &destRect.w, &destRect.h);
       SDL_RenderCopy(Game::renderer, wonTexture, NULL, &destRect);
+    }
+
+    // Display Time
+    destRect.x = rightSideRenderingInitialPosition;
+    destRect.y += destRect.h * timeDataDirection;
+    int numsToDisplay[4] = {0, 0, 0, 0};
+    clockTickToTime(playerTime[i] / FPS, numsToDisplay);
+
+    for (int j = 0; j < 4; j++) {
+      SDL_QueryTexture(numberTextures[numsToDisplay[j]], NULL, NULL,
+                       &destRect.w, &destRect.h);
+      SDL_RenderCopy(Game::renderer, numberTextures[numsToDisplay[j]], NULL,
+                     &destRect);
+      destRect.x += destRect.w;
+      if (j == 1) {
+        SDL_QueryTexture(colonTexture, NULL, NULL, &destRect.w, &destRect.h);
+        SDL_RenderCopy(Game::renderer, colonTexture, NULL, &destRect);
+        destRect.x += destRect.w;
+      }
     }
   }
 
   destRect.x = rightSideRenderingInitialPosition;
-  if (checkMateInfo) {
+  if (outOfTime) {
     destRect.y = 0.45 * WINDOW_HEIGHT;
-    SDL_QueryTexture(checkMateTexture, NULL, NULL, &destRect.w, &destRect.h);
-    SDL_RenderCopy(Game::renderer, checkMateTexture, NULL, &destRect);
+    SDL_QueryTexture(outOfTimeTexture, NULL, NULL, &destRect.w, &destRect.h);
+    SDL_RenderCopy(Game::renderer, outOfTimeTexture, NULL, &destRect);
   } else {
-    if (checkInfo) {
+    if (checkMateInfo) {
       destRect.y = 0.45 * WINDOW_HEIGHT;
-      SDL_QueryTexture(checkTexture, NULL, NULL, &destRect.w, &destRect.h);
-      SDL_RenderCopy(Game::renderer, checkTexture, NULL, &destRect);
+      SDL_QueryTexture(checkMateTexture, NULL, NULL, &destRect.w, &destRect.h);
+      SDL_RenderCopy(Game::renderer, checkMateTexture, NULL, &destRect);
+    } else {
+      if (checkInfo) {
+        destRect.y = 0.45 * WINDOW_HEIGHT;
+        SDL_QueryTexture(checkTexture, NULL, NULL, &destRect.w, &destRect.h);
+        SDL_RenderCopy(Game::renderer, checkTexture, NULL, &destRect);
+      }
     }
   }
 
@@ -338,3 +397,14 @@ void Gameboard::handleInput(SDL_Event &event) {
 }
 void Gameboard::pause() {}
 void Gameboard::resume() {}
+
+void clockTickToTime(int clock, int timeInfo[4]) {
+  int min, secs;
+  min = clock / 60;
+  secs = clock % 60;
+
+  timeInfo[0] = min / 10;
+  timeInfo[1] = min % 10;
+  timeInfo[2] = secs / 10;
+  timeInfo[3] = secs % 10;
+}
