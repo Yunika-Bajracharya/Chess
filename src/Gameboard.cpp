@@ -254,7 +254,7 @@ void Gameboard::render() {
    * are rendered
    */
 
-  srcRect.h = srcRect.w = 200;
+  srcRect.h = srcRect.w = 80;
   int capturedPieceOffset[2] = {0, 0};
   int capturedPieceOffsetHeight[2] = {0, 0};
   for (int i = 0; i < 2; i++) {
@@ -375,7 +375,7 @@ void Gameboard::render() {
     destRect.x = boardStartPos.j + promotionInfo.location.j * BLOCK_WIDTH;
     destRect.w = destRect.h = BLOCK_WIDTH;
 
-    srcRect.h = srcRect.w = 200;
+    srcRect.h = srcRect.w = 80;
     srcRect.y = (state.isWhiteTurn) ? 0 : srcRect.h;
 
     SDL_SetRenderDrawColor(Game::renderer, 100, 100, 100, 255);
