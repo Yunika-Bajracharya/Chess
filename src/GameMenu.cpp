@@ -47,7 +47,7 @@ void GameMenu::handleInput(SDL_Event &event) {
     if (x > exitButton.x && y > exitButton.y &&
         x < exitButton.x + exitButton.w && y < exitButton.y + exitButton.h){
           std::cout<<"Just Quit it"<<std::endl;
-          gameRef ->clean();
+          gameRef ->exitGame();
           }
   }
 }

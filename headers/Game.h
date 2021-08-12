@@ -34,6 +34,7 @@ public:
   void update();
   void render();
   void clean();
+  void exitGame();
 
   bool running();
 

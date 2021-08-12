@@ -102,6 +102,8 @@ void Game::clean() {
   std::cout << "Game cleared" << std::endl;
 }
 
+void Game::exitGame() { this->isRunning = false; }
+
 bool Game::running() { return isRunning; }
 
 void Game::createGameBoard() { stateMachine.AddState(new Gameboard(), true); }
