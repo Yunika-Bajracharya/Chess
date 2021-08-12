@@ -16,8 +16,12 @@ public:
 
   void pause() override;
   void resume() override;
+  void loadImg();
+
 
 private:
-  SDL_Rect buttonDest;
+  SDL_Rect startButton,exitButton;
   Game *gameRef;
+  SDL_Surface *start, *exit;
+  SDL_Texture *startTexture, *exitTexture;
 };
