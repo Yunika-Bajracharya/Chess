@@ -156,7 +156,7 @@ lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
             move.endPos.isPromotionSquare()) {
           promotionInfo.promotion = true;
           promotionInfo.location = move.endPos;
-          return {false, false};
+          return {false, lastMoveInfo::None};
         }
 
         if (promotionInfo.promotion && promotionType != move.promotion) {
@@ -168,10 +168,10 @@ lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
        */
 
       bool check = placePiece(move, state);
-      return {true, check};
+      return {true, check ? lastMoveInfo::Check : lastMoveInfo::None};
     }
   }
-  return {false, false};
+  return {false, lastMoveInfo::None};
 }
 bool Engine::placePiece(Move move, BoardState &state) {
   Piece *movingPiece = state.getPiece(move.startPos);

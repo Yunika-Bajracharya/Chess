@@ -12,7 +12,7 @@ void clockTickToTime(int clock, int timeInfo[4]);
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, bool &checkInfo, bool &checkMateInfo,
+              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
               Promotion::uiInfo &promotionInfo, int promotionID = 0);
 
 Gameboard::Gameboard() {}
@@ -24,6 +24,7 @@ Gameboard::~Gameboard() {
   SDL_DestroyTexture(checkTexture);
   SDL_DestroyTexture(checkMateTexture);
   SDL_DestroyTexture(wonTexture);
+  SDL_DestroyTexture(matchDrawTexture);
   for (int i = 0; i < 10; i++) {
     SDL_DestroyTexture(numberTextures[i]);
   }
@@ -32,27 +33,24 @@ Gameboard::~Gameboard() {
 }
 
 void Gameboard::init() {
-  int timeInMinutes = 10;
-  state = BoardState();
-  promotionInfo.promotion = false;
+  setBoard();
 
   // Some stuff here
   boardStartPos.j = WINDOW_WIDTH / 2 - 4 * BLOCK_WIDTH;
   boardStartPos.i = WINDOW_HEIGHT / 2 - 4 * BLOCK_WIDTH;
 
-  // Creating Players
-  state.players[0] = new Player("Suban", true);
-  state.players[1] = new Player("Prabin", false);
-  playerTime[0] = playerTime[1] = timeInMinutes * 60 * FPS;
+  resetButtonTexture = TextureManager::loadSentence("Reset");
+  SDL_QueryTexture(resetButtonTexture, NULL, NULL, &resetButtonRect.w,
+                   &resetButtonRect.h);
+
+  resetButtonRect.x = boardStartPos.j - resetButtonRect.w - BLOCK_WIDTH / 2;
+  resetButtonRect.y = WINDOW_HEIGHT / 2 - resetButtonRect.h / 2;
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
     playerNamesTexture[i] =
         TextureManager::loadSentence(state.players[i]->Name.c_str());
   }
-
-  // Handle FEN string
-  Engine::handleFENString(STARTING_FEN, state);
 
   // Load piece Textures
   pieceTexture = TextureManager::loadTexture("assets/pieces.png");
@@ -62,18 +60,39 @@ void Gameboard::init() {
    */
   checkTexture = TextureManager::loadSentence("Check");
   checkMateTexture = TextureManager::loadSentence("Checkmate");
-  checkInfo = checkMateInfo = false;
   wonTexture = TextureManager::loadSentence("WON");
+  matchDrawTexture = TextureManager::loadSentence("Draw");
   for (int i = 0; i < 10; i++) {
-    char num = i + ASCII_OFFSET;
-    numberTextures[i] = TextureManager::loadSentence(&num);
+    char num[2];
+    num[0] = i + ASCII_OFFSET;
+    num[1] = '\0';
+    numberTextures[i] = TextureManager::loadSentence(num);
   }
   colonTexture = TextureManager::loadSentence(":");
   outOfTimeTexture = TextureManager::loadSentence("Out of time.");
-  outOfTime = false;
+}
 
+void Gameboard::setBoard() {
+  state = BoardState();
+  promotionInfo.promotion = false;
+  state.players[0] = new Player("Suban", true);
+  state.players[1] = new Player("Prabin", false);
+
+  // Handle FEN string
+  Engine::handleFENString(STARTING_FEN, state);
+  lastMoveState = lastMoveInfo::None;
   allMoves.clear();
   Engine::generateAllMoves(state, allMoves);
+
+  int timeInMinutes = 10;
+  // Creating Players
+  playerTime[0] = playerTime[1] = timeInMinutes * 60 * FPS;
+}
+
+void Gameboard::resetBoard() {
+  delete state.players[0];
+  delete state.players[1];
+  setBoard();
 }
 
 void Gameboard::handleMouseDown(SDL_Event &event) {
@@ -82,7 +101,8 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
   int y = event.button.y - boardStartPos.i;
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
-  if (outOfTime) {
+  if (lastMoveState != lastMoveInfo::None &&
+      lastMoveState != lastMoveInfo::Check) {
     return;
   }
 
@@ -99,8 +119,9 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
           if (location.i == promotionInfo.location.i + direction * i) {
             moves.push_back({state.dragPieceLocation, promotionInfo.location,
                              Promotion::promotionMap[i + 1]});
-            makeMove(promotionInfo.location, state, allMoves, moves, checkInfo,
-                     checkMateInfo, promotionInfo, i + 1);
+            makeMove(promotionInfo.location, state, allMoves, moves,
+                     lastMoveState, promotionInfo, i + 1);
+
             promotionInfo.promotion = false;
           }
         }
@@ -133,13 +154,18 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
   int y = event.button.y - boardStartPos.i;
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
-  if (outOfTime) {
-    return;
-  }
-
   if (event.button.button == SDL_BUTTON_LEFT) {
-    makeMove(location, state, allMoves, moves, checkInfo, checkMateInfo,
-             promotionInfo);
+    if (lastMoveState != lastMoveInfo::None &&
+        lastMoveState != lastMoveInfo::Check) {
+      if (event.button.x > resetButtonRect.x &&
+          event.button.y > resetButtonRect.y &&
+          event.button.x < (resetButtonRect.x + resetButtonRect.w) &&
+          event.button.y < (resetButtonRect.y + resetButtonRect.h)) {
+        resetBoard();
+      }
+      return;
+    }
+    makeMove(location, state, allMoves, moves, lastMoveState, promotionInfo);
     moves.clear();
   }
   state.dragPieceId = 0;
@@ -147,7 +173,7 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, bool &checkInfo, bool &checkMateInfo,
+              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
               Promotion::uiInfo &promotionInfo, int promotionID) {
 
   Promotion::promotion promotion = Promotion::None;
@@ -165,21 +191,26 @@ void makeMove(Coordinate location, BoardState &state,
   }
   moves.clear();
   if (info.success) {
-    checkInfo = info.check;
+    lastMoveState = info.state;
 
     int count = Engine::generateAllMoves(state, allMoves);
     if (count == 0) {
-      std::cout << "Checkmate!!!" << std::endl;
-      checkMateInfo = true;
+      if (info.state == lastMoveInfo::Check) {
+        lastMoveState = lastMoveInfo::CheckMate;
+        std::cout << "Checkmate!!!" << std::endl;
+      } else {
+        lastMoveState = lastMoveInfo::Draw;
+      }
     }
   }
 }
 
 void Gameboard::update() {
-  if (!checkMateInfo) {
+  if ((lastMoveState == lastMoveInfo::None) ||
+      (lastMoveState == lastMoveInfo::Check)) {
     playerTime[!state.isWhiteTurn]--;
     if (playerTime[!state.isWhiteTurn] < 0) {
-      outOfTime = true;
+      lastMoveState = lastMoveInfo::OutofTime;
       playerTime[!state.isWhiteTurn] = 0;
     }
   }
@@ -324,7 +355,9 @@ void Gameboard::render() {
 
     SDL_RenderCopy(Game::renderer, playerNamesTexture[i], NULL, &destRect);
 
-    if ((checkMateInfo || outOfTime) && state.isWhiteTurn == i) {
+    if ((lastMoveState == lastMoveInfo::CheckMate ||
+         lastMoveState == lastMoveInfo::OutofTime) &&
+        state.isWhiteTurn == i) {
       destRect.x += destRect.w + BLOCK_WIDTH / 4;
       SDL_QueryTexture(wonTexture, NULL, NULL, &destRect.w, &destRect.h);
       SDL_RenderCopy(Game::renderer, wonTexture, NULL, &destRect);
@@ -351,22 +384,35 @@ void Gameboard::render() {
   }
 
   destRect.x = rightSideRenderingInitialPosition;
-  if (outOfTime) {
-    destRect.y = 0.45 * WINDOW_HEIGHT;
+  destRect.y = 0.45 * WINDOW_HEIGHT;
+  switch (lastMoveState) {
+  case lastMoveInfo::OutofTime: {
     SDL_QueryTexture(outOfTimeTexture, NULL, NULL, &destRect.w, &destRect.h);
     SDL_RenderCopy(Game::renderer, outOfTimeTexture, NULL, &destRect);
-  } else {
-    if (checkMateInfo) {
-      destRect.y = 0.45 * WINDOW_HEIGHT;
-      SDL_QueryTexture(checkMateTexture, NULL, NULL, &destRect.w, &destRect.h);
-      SDL_RenderCopy(Game::renderer, checkMateTexture, NULL, &destRect);
-    } else {
-      if (checkInfo) {
-        destRect.y = 0.45 * WINDOW_HEIGHT;
-        SDL_QueryTexture(checkTexture, NULL, NULL, &destRect.w, &destRect.h);
-        SDL_RenderCopy(Game::renderer, checkTexture, NULL, &destRect);
-      }
-    }
+    break;
+  }
+  case lastMoveInfo::CheckMate: {
+    SDL_QueryTexture(checkMateTexture, NULL, NULL, &destRect.w, &destRect.h);
+    SDL_RenderCopy(Game::renderer, checkMateTexture, NULL, &destRect);
+    break;
+  }
+  case lastMoveInfo::Check: {
+    SDL_QueryTexture(checkTexture, NULL, NULL, &destRect.w, &destRect.h);
+    SDL_RenderCopy(Game::renderer, checkTexture, NULL, &destRect);
+    break;
+  }
+  case lastMoveInfo::Draw: {
+    SDL_QueryTexture(matchDrawTexture, NULL, NULL, &destRect.w, &destRect.h);
+    SDL_RenderCopy(Game::renderer, matchDrawTexture, NULL, &destRect);
+  }
+
+  default:
+    break;
+    ;
+  }
+  if (lastMoveState != lastMoveInfo::None &&
+      lastMoveState != lastMoveInfo::Check) {
+    SDL_RenderCopy(Game::renderer, resetButtonTexture, NULL, &resetButtonRect);
   }
 
   // Render Promotion Info

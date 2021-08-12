@@ -5,8 +5,9 @@
 #include <vector>
 
 struct lastMoveInfo {
+  enum State { None, Check, CheckMate, Draw, OutofTime };
   bool success;
-  bool check;
+  State state;
 };
 
 struct Coordinate {
