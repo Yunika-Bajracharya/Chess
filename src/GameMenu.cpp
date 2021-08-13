@@ -5,6 +5,7 @@ bool buttonPress(int x, int y, const SDL_Rect &rect);
 
 GameMenu::GameMenu(Game *_gameRef) : gameRef(_gameRef) {}
 GameMenu::~GameMenu() {
+  std::cout << "GameMenu destroyed" << std::endl;
   SDL_DestroyTexture(exitTexture);
   SDL_DestroyTexture(startTexture);
   for (int i = 0; i < 2; i++) {

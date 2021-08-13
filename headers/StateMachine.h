@@ -17,6 +17,7 @@ public:
   void RemoveState();
 
   GameState *GetActiveState();
+  void clear();
 
 private:
   std::stack<GameState *> _states;

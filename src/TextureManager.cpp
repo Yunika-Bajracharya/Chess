@@ -62,7 +62,6 @@ void TextureManager::DrawFillCircle(SDL_Renderer *renderer, int x, int y,
                                  x + offsety, y - offsetx);
 
     if (status < 0) {
-      status = -1;
       break;
     }
 

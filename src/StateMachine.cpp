@@ -3,40 +3,41 @@
 StateMachine::StateMachine() {}
 StateMachine::~StateMachine() {}
 
-void StateMachine::AddState(GameState *newState, bool isReplacing){
-  this->_newState = std::move(newState);
-  if (!this->_states.empty())
-  {
-    if (isReplacing)
-    {
+void StateMachine::AddState(GameState *newState, bool isReplacing) {
+  this->_newState = newState;
+  if (!this->_states.empty()) {
+    if (isReplacing) {
       delete this->_states.top();
       this->_states.pop();
-    }
-    else
-    {
+    } else {
       this->_states.top()->pause();
     }
   }
-  this->_states.push(std::move(this->_newState));
+  this->_states.push((this->_newState));
   this->_states.top()->init();
   this->_isAdding = false;
 }
 
 void StateMachine::RemoveState() { this->_isRemoving = true; }
 
-void StateMachine::ProcessStateChanges()
-{
-  if (_isRemoving && !this->_states.empty())
-  {
+void StateMachine::ProcessStateChanges() {
+  if (_isRemoving && !this->_states.empty()) {
     delete this->_states.top();
     this->_states.pop();
 
-    if (!this->_states.empty())
-    {
+    if (!this->_states.empty()) {
       this->_states.top()->resume();
     }
 
     this->_isRemoving = false;
+  }
+}
+
+void StateMachine::clear() {
+  size_t count = this->_states.size();
+  for (size_t i = 0; i < count; i++) {
+    delete this->_states.top();
+    this->_states.pop();
   }
 }
 

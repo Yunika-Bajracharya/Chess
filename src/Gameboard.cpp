@@ -12,8 +12,9 @@ void clockTickToTime(int clock, int timeInfo[4]);
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState, Move& lastMove, 
-              Promotion::uiInfo &promotionInfo, int promotionID = 0);
+              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
+              LastMove &lastMove, Promotion::uiInfo &promotionInfo,
+              int promotionID = 0);
 
 Gameboard::Gameboard(std::string name1, std::string name2) {
   PlayerNames[0] = name1;
@@ -21,15 +22,16 @@ Gameboard::Gameboard(std::string name1, std::string name2) {
 }
 
 Gameboard::~Gameboard() {
+  std::cout << "Gameboard Destroyed" << std::endl;
   SDL_DestroyTexture(playerNamesTexture[0]);
   SDL_DestroyTexture(playerNamesTexture[1]);
   SDL_DestroyTexture(pieceTexture);
   SDL_DestroyTexture(checkTexture);
   SDL_DestroyTexture(checkMateTexture);
   SDL_DestroyTexture(wonTexture);
-  for (int i = 1; i < 9; i++) {
-    SDL_DestroyTexture(verticalNotation[8]);
-    SDL_DestroyTexture(horizontalNotation[8]);
+  for (int i = 0; i < 8; i++) {
+    SDL_DestroyTexture(verticalNotation[i]);
+    SDL_DestroyTexture(horizontalNotation[i]);
   }
   SDL_DestroyTexture(matchDrawTexture);
   for (int i = 0; i < 10; i++) {
@@ -79,17 +81,17 @@ void Gameboard::init() {
   colonTexture = TextureManager::loadSentence(":");
   outOfTimeTexture = TextureManager::loadSentence("Out of time.");
 
-  //load vertical notation textures
+  // load vertical notation textures
   for (int l = 1; l < 9; l++) {
     char no[2];
     no[0] = l + ASCII_OFFSET;
     no[1] = '\0';
-    verticalNotation[l] = TextureManager::loadSentence(no, 30);
+    verticalNotation[l - 1] = TextureManager::loadSentence(no, 30);
   }
 
   // load horizontal notation textures
   for (int l = 0; l < 8; l++) {
-    char no[8];
+    char no[2];
     no[0] = char(l + 97);
     no[1] = '\0';
     horizontalNotation[l] = TextureManager::loadSentence(no, 30);
@@ -190,7 +192,8 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       }
       return;
     }
-    makeMove(location, state, allMoves, moves, lastMoveState, lastMove, promotionInfo);
+    makeMove(location, state, allMoves, moves, lastMoveState, lastMove,
+             promotionInfo);
     moves.clear();
   }
   state.dragPieceId = 0;
@@ -198,9 +201,10 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState, Move& lastMove, 
-              Promotion::uiInfo &promotionInfo, int promotionID) {
-  
+              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
+              LastMove &lastMove, Promotion::uiInfo &promotionInfo,
+              int promotionID) {
+
   Promotion::promotion promotion = Promotion::None;
   // handlePromotionindex
   if (promotionID >= 0 && promotionID <= 4) {
@@ -243,8 +247,8 @@ void Gameboard::update() {
 
 void Gameboard::render() {
   SDL_Rect notationRect; // vertical board notation
-  SDL_Rect destRect; // where to render
-  SDL_Rect srcRect;  // from where we render
+  SDL_Rect destRect;     // where to render
+  SDL_Rect srcRect;      // from where we render
   int rightSideRenderingInitialPosition =
       (float)WINDOW_WIDTH / 2 + 4.5 * BLOCK_WIDTH;
 
@@ -257,36 +261,38 @@ void Gameboard::render() {
 
   // Render board
   destRect.h = destRect.w = BLOCK_WIDTH;
-  for (int i = 0; i < 8; i++) { // row
+  for (int i = 0; i < 8; i++) {   // row
     for (int j = 0; j < 8; j++) { // column
       if ((i + j) % 2 == 0) {
-        SDL_SetRenderDrawColor(Game::renderer, 238, 238, 210, renderAlpha); // cream color
+        SDL_SetRenderDrawColor(Game::renderer, 238, 238, 210,
+                               renderAlpha); // cream color
       } else {
-        SDL_SetRenderDrawColor(Game::renderer, 118, 150, 86, renderAlpha); // green color
+        SDL_SetRenderDrawColor(Game::renderer, 118, 150, 86,
+                               renderAlpha); // green color
       }
       destRect.x = boardStartPos.j + j * BLOCK_WIDTH;
       destRect.y = boardStartPos.i + i * BLOCK_WIDTH;
       SDL_RenderFillRect(Game::renderer, &destRect);
-      
+
       // vertical notation
       if (j == 0) {
-        SDL_QueryTexture(verticalNotation[8 - i], NULL, NULL,
-                       &notationRect.w, &notationRect.h);
+        SDL_QueryTexture(verticalNotation[8 - i - 1], NULL, NULL,
+                         &notationRect.w, &notationRect.h);
         notationRect.x = destRect.x - notationRect.w - 10;
         notationRect.y = destRect.y;
-        SDL_RenderCopy(Game::renderer, verticalNotation[8 - i], NULL,
-                     &notationRect);
+        SDL_RenderCopy(Game::renderer, verticalNotation[8 - i - 1], NULL,
+                       &notationRect);
       }
 
       // horizontal notation
       if (i == 7) {
-      SDL_QueryTexture(horizontalNotation[j], NULL, NULL,
-                       &notationRect.w, &notationRect.h);
-      notationRect.x = destRect.x - (notationRect.w - 55);
-      notationRect.y = destRect.y + notationRect.h + 40;
-      SDL_RenderCopy(Game::renderer, horizontalNotation[j], NULL,
-                     &notationRect);
-    }
+        SDL_QueryTexture(horizontalNotation[j], NULL, NULL, &notationRect.w,
+                         &notationRect.h);
+        notationRect.x = destRect.x - (notationRect.w - 55);
+        notationRect.y = destRect.y + notationRect.h + 40;
+        SDL_RenderCopy(Game::renderer, horizontalNotation[j], NULL,
+                       &notationRect);
+      }
       if (lastMove.made) {
         if (lastMove.endPos == Coordinate({i, j}) ||
             lastMove.startPos == Coordinate({i, j})) {

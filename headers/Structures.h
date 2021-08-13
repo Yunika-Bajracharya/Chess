@@ -66,7 +66,6 @@ struct uiInfo {
 struct Move {
   Coordinate startPos;
   Coordinate endPos;
-  bool made;
   Promotion::promotion promotion;
 
   Move(Coordinate s, Coordinate e, Promotion::promotion p = Promotion::None)
@@ -88,9 +87,12 @@ struct Move {
     char *e = toBoardNotation(endPos);
     std::cout << s << e << " ";
 
-    delete[] s;
-    delete[] e;
+    delete s;
+    delete e;
   }
+};
+struct LastMove : public Move {
+  bool made;
 };
 
 // Stores all the moves

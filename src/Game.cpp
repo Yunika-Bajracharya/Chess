@@ -8,23 +8,32 @@ GameMenu *menu = nullptr;
 
 Game::Game() {}
 
-Game::~Game() { clean(); }
+Game::~Game() {
+  clean();
+  stateMachine.clear();
+}
 
 void Game::init(const char *title, int xpos, int ypos, int width, int height,
                 bool fullscreen) {
 
+  // By default we have no flags
   int flags = 0;
   if (fullscreen) {
+    // If fullscreen, flag -> make window fullscreen
     flags = SDL_WINDOW_FULLSCREEN;
   }
 
+  // We Start SDL
   if (SDL_Init(SDL_INIT_EVERYTHING) == 0) {
+    // Window Creation
     window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
+    // Setting window color
     if (window) {
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     }
 
+    // Creating renderer
     renderer = SDL_CreateRenderer(window, -1, 0);
     if (renderer) {
       std::cout << "renderer created" << std::endl;
@@ -45,7 +54,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     isRunning = true;
     SDL_StartTextInput();
 
-    stateMachine.AddState(new GameMenu(this));
+    GameMenu *menu = new GameMenu(this);
+    stateMachine.AddState(menu);
   } else {
     isRunning = false;
   }

@@ -43,7 +43,7 @@ private:
   Promotion::uiInfo promotionInfo;
   lastMoveInfo::State lastMoveState;
 
-  Move lastMove;
+  LastMove lastMove;
   Player *players[2];
   int playerTime[2];
   std::string PlayerNames[2];
