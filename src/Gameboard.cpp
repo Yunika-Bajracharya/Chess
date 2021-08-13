@@ -206,7 +206,7 @@ void makeMove(Coordinate location, BoardState &state,
   if (promotionID >= 0 && promotionID <= 4) {
     promotion = Promotion::promotionMap[promotionID];
   }
-  
+  Coordinate temp = state.dragPieceLocation;
   lastMoveInfo info = Engine::handlePiecePlacement(location, state, moves,
                                                    promotionInfo, promotion);
 
@@ -215,6 +215,9 @@ void makeMove(Coordinate location, BoardState &state,
     SoundManager::playSound(!state.isWhiteTurn ? SoundManager::WhiteMove
                                                : SoundManager::BlackMove);
     lastMoveState = info.state;
+    lastMove.made = true;
+    lastMove.startPos = temp;
+    lastMove.endPos = location;
     int count = Engine::generateAllMoves(state, allMoves);
     if (count == 0) {
       if (info.state == lastMoveInfo::Check) {
@@ -285,8 +288,8 @@ void Gameboard::render() {
                      &notationRect);
     }
       if (lastMove.made) {
-        if (lastMove.endPos == Coordinate({j, i}) ||
-            lastMove.startPos == Coordinate({j, i})) {
+        if (lastMove.endPos == Coordinate({i, j}) ||
+            lastMove.startPos == Coordinate({i, j})) {
           SDL_SetRenderDrawColor(Game::renderer, 255, 255, 0, 200);
           SDL_RenderFillRect(Game::renderer, &destRect);
         }
