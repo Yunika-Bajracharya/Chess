@@ -20,12 +20,12 @@ void TextureManager::Draw(SDL_Texture *tex, SDL_Rect &src, SDL_Rect &dest) {
   SDL_RenderCopy(Game::renderer, tex, &src, &dest);
 }
 
-SDL_Texture *TextureManager::loadSentence(const char *sentence) {
+SDL_Texture *TextureManager::loadSentence(const char *sentence, int fontSize) {
   /*
    * Loads a sentence as texture
    */
 
-  TTF_Font *Roboto = TTF_OpenFont("assets/Roboto.ttf", 48);
+  TTF_Font *Roboto = TTF_OpenFont("assets/Roboto.ttf", fontSize);
   // SDL_Color White = {255, 255, 255, 255};
   SDL_Color Black = {0, 0, 0, 255};
 

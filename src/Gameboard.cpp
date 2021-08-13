@@ -12,7 +12,7 @@ void clockTickToTime(int clock, int timeInfo[4]);
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
+              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState, Move& lastMove, 
               Promotion::uiInfo &promotionInfo, int promotionID = 0);
 
 Gameboard::Gameboard() {}
@@ -24,6 +24,10 @@ Gameboard::~Gameboard() {
   SDL_DestroyTexture(checkTexture);
   SDL_DestroyTexture(checkMateTexture);
   SDL_DestroyTexture(wonTexture);
+  for (int i = 1; i < 9; i++) {
+    SDL_DestroyTexture(verticalNotation[8]);
+    SDL_DestroyTexture(horizontalNotation[8]);
+  }
   SDL_DestroyTexture(matchDrawTexture);
   for (int i = 0; i < 10; i++) {
     SDL_DestroyTexture(numberTextures[i]);
@@ -70,6 +74,22 @@ void Gameboard::init() {
   }
   colonTexture = TextureManager::loadSentence(":");
   outOfTimeTexture = TextureManager::loadSentence("Out of time.");
+
+  //load vertical notation textures
+  for (int l = 1; l < 9; l++) {
+    char no[2];
+    no[0] = l + ASCII_OFFSET;
+    no[1] = '\0';
+    verticalNotation[l] = TextureManager::loadSentence(no, 30);
+  }
+
+  // load horizontal notation textures
+  for (int l = 0; l < 8; l++) {
+    char no[8];
+    no[0] = char(l + 97);
+    no[1] = '\0';
+    horizontalNotation[l] = TextureManager::loadSentence(no, 30);
+  }
 }
 
 void Gameboard::setBoard() {
@@ -82,6 +102,7 @@ void Gameboard::setBoard() {
   Engine::handleFENString(STARTING_FEN, state);
   lastMoveState = lastMoveInfo::None;
   allMoves.clear();
+  lastMove.made = false;
   Engine::generateAllMoves(state, allMoves);
 
   int timeInMinutes = 10;
@@ -120,7 +141,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
             moves.push_back({state.dragPieceLocation, promotionInfo.location,
                              Promotion::promotionMap[i + 1]});
             makeMove(promotionInfo.location, state, allMoves, moves,
-                     lastMoveState, promotionInfo, i + 1);
+                     lastMoveState, lastMove, promotionInfo, i + 1);
 
             promotionInfo.promotion = false;
           }
@@ -165,7 +186,7 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       }
       return;
     }
-    makeMove(location, state, allMoves, moves, lastMoveState, promotionInfo);
+    makeMove(location, state, allMoves, moves, lastMoveState, lastMove, promotionInfo);
     moves.clear();
   }
   state.dragPieceId = 0;
@@ -173,26 +194,23 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
 
 void makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
+              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState, Move& lastMove, 
               Promotion::uiInfo &promotionInfo, int promotionID) {
-
+  
   Promotion::promotion promotion = Promotion::None;
   // handlePromotionindex
   if (promotionID >= 0 && promotionID <= 4) {
     promotion = Promotion::promotionMap[promotionID];
   }
-
+  
   lastMoveInfo info = Engine::handlePiecePlacement(location, state, moves,
                                                    promotionInfo, promotion);
 
+  moves.clear();
   if (info.success) {
     SoundManager::playSound(!state.isWhiteTurn ? SoundManager::WhiteMove
                                                : SoundManager::BlackMove);
-  }
-  moves.clear();
-  if (info.success) {
     lastMoveState = info.state;
-
     int count = Engine::generateAllMoves(state, allMoves);
     if (count == 0) {
       if (info.state == lastMoveInfo::Check) {
@@ -217,7 +235,7 @@ void Gameboard::update() {
 }
 
 void Gameboard::render() {
-
+  SDL_Rect notationRect; // vertical board notation
   SDL_Rect destRect; // where to render
   SDL_Rect srcRect;  // from where we render
   int rightSideRenderingInitialPosition =
@@ -232,17 +250,36 @@ void Gameboard::render() {
 
   // Render board
   destRect.h = destRect.w = BLOCK_WIDTH;
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
+  for (int i = 0; i < 8; i++) { // row
+    for (int j = 0; j < 8; j++) { // column
       if ((i + j) % 2 == 0) {
-        SDL_SetRenderDrawColor(Game::renderer, 238, 238, 210, renderAlpha);
+        SDL_SetRenderDrawColor(Game::renderer, 238, 238, 210, renderAlpha); // cream color
       } else {
-        SDL_SetRenderDrawColor(Game::renderer, 118, 150, 86, renderAlpha);
+        SDL_SetRenderDrawColor(Game::renderer, 118, 150, 86, renderAlpha); // green color
       }
       destRect.x = boardStartPos.j + j * BLOCK_WIDTH;
       destRect.y = boardStartPos.i + i * BLOCK_WIDTH;
       SDL_RenderFillRect(Game::renderer, &destRect);
+      
+      // vertical notation
+      if (j == 0) {
+        SDL_QueryTexture(verticalNotation[8 - i], NULL, NULL,
+                       &notationRect.w, &notationRect.h);
+        notationRect.x = destRect.x - notationRect.w - 10;
+        notationRect.y = destRect.y;
+        SDL_RenderCopy(Game::renderer, verticalNotation[8 - i], NULL,
+                     &notationRect);
+      }
 
+      // horizontal notation
+      if (i == 7) {
+      SDL_QueryTexture(horizontalNotation[j], NULL, NULL,
+                       &notationRect.w, &notationRect.h);
+      notationRect.x = destRect.x - (notationRect.w - 55);
+      notationRect.y = destRect.y + notationRect.h + 40;
+      SDL_RenderCopy(Game::renderer, horizontalNotation[j], NULL,
+                     &notationRect);
+    }
       if (lastMove.made) {
         if (lastMove.endPos == Coordinate({j, i}) ||
             lastMove.startPos == Coordinate({j, i})) {
@@ -253,7 +290,6 @@ void Gameboard::render() {
     }
   }
 
-  // Highlight all the possible moes
   for (Move move : moves) {
     destRect.x = boardStartPos.j + move.endPos.j * BLOCK_WIDTH;
     destRect.y = boardStartPos.i + move.endPos.i * BLOCK_WIDTH;
@@ -369,13 +405,13 @@ void Gameboard::render() {
     int numsToDisplay[4] = {0, 0, 0, 0};
     clockTickToTime(playerTime[i] / FPS, numsToDisplay);
 
-    for (int j = 0; j < 4; j++) {
-      SDL_QueryTexture(numberTextures[numsToDisplay[j]], NULL, NULL,
+    for (int k = 0; k < 4; k++) {
+      SDL_QueryTexture(numberTextures[numsToDisplay[k]], NULL, NULL,
                        &destRect.w, &destRect.h);
-      SDL_RenderCopy(Game::renderer, numberTextures[numsToDisplay[j]], NULL,
+      SDL_RenderCopy(Game::renderer, numberTextures[numsToDisplay[k]], NULL,
                      &destRect);
       destRect.x += destRect.w;
-      if (j == 1) {
+      if (k == 1) {
         SDL_QueryTexture(colonTexture, NULL, NULL, &destRect.w, &destRect.h);
         SDL_RenderCopy(Game::renderer, colonTexture, NULL, &destRect);
         destRect.x += destRect.w;

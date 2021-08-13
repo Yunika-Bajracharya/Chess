@@ -55,5 +55,7 @@ private:
       *matchDrawTexture;
   SDL_Texture *wonTexture;
   SDL_Texture *numberTextures[10]; // Stores the textures for numbers 0-9
+  SDL_Texture *horizontalNotation[8];
+  SDL_Texture *verticalNotation[8];
   SDL_Texture *colonTexture;
 };
