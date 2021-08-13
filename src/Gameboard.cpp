@@ -15,7 +15,10 @@ void makeMove(Coordinate location, BoardState &state,
               std::vector<Move> &moves, lastMoveInfo::State &lastMoveState, Move& lastMove, 
               Promotion::uiInfo &promotionInfo, int promotionID = 0);
 
-Gameboard::Gameboard() {}
+Gameboard::Gameboard(std::string name1, std::string name2) {
+  PlayerNames[0] = name1;
+  PlayerNames[1] = name2;
+}
 
 Gameboard::~Gameboard() {
   SDL_DestroyTexture(playerNamesTexture[0]);
@@ -34,6 +37,7 @@ Gameboard::~Gameboard() {
   }
   SDL_DestroyTexture(colonTexture);
   SDL_DestroyTexture(outOfTimeTexture);
+  SDL_DestroyTexture(resetButtonTexture);
 }
 
 void Gameboard::init() {
@@ -95,8 +99,8 @@ void Gameboard::init() {
 void Gameboard::setBoard() {
   state = BoardState();
   promotionInfo.promotion = false;
-  state.players[0] = new Player("Suban", true);
-  state.players[1] = new Player("Prabin", false);
+  state.players[0] = new Player(PlayerNames[0], true);
+  state.players[1] = new Player(PlayerNames[1], false);
 
   // Handle FEN string
   Engine::handleFENString(STARTING_FEN, state);

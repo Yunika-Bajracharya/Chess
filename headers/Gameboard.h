@@ -17,7 +17,7 @@
 
 class Gameboard : public GameState {
 public:
-  Gameboard();
+  Gameboard(std::string name1 = "Suban", std::string name2 = "Prabin");
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
@@ -46,6 +46,7 @@ private:
   Move lastMove;
   Player *players[2];
   int playerTime[2];
+  std::string PlayerNames[2];
 
   SDL_Rect resetButtonRect;
   SDL_Texture *resetButtonTexture;

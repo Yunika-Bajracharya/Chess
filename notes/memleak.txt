@@ -1,0 +1,4 @@
+During the main development process, due to poor consideration, we overlooked memory leaks. 
+Later on, as the leaks started piling on, we started facing difficultes to progress furthur. 
+So, we used a program called valgrind to detech memory issue and found out a lot of memory leak in our program.
+So we worked on solving the memory leaks.

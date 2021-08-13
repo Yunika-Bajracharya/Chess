@@ -40,7 +40,7 @@ public:
 
   static SDL_Renderer *renderer;
 
-  void createGameBoard();
+  void createGameBoard(std::string name0, std::string name1);
 
 private:
   bool isRunning;
