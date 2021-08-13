@@ -29,21 +29,21 @@ void GameMenu::init() {
   backdrop.x = backdrop.y = 0;
 
   isNameOneTheFocus = false;
-  names[0] = "Suban";
-  names[1] = "Prabin";
+  names[0] = "Player 1";
+  names[1] = "Player 2";
 
   namesBoxRect[0].y = WINDOW_HEIGHT / 8;
   namesBoxRect[1].y = WINDOW_HEIGHT / 8 + WINDOW_HEIGHT / 12;
   namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH / 2;
-
-  namesPromptTexture[0] = TextureManager::loadSentence("Player 1: ");
-  namesPromptTexture[1] = TextureManager::loadSentence("Player 2: ");
-  cursorTexture = TextureManager::loadSentence("|");
+ 
+  namesPromptTexture[0] = TextureManager::loadSentence("Player 1 name: ", 30);
+  namesPromptTexture[1] = TextureManager::loadSentence("Player 2 name: ", 30);
+  cursorTexture = TextureManager::loadSentence("|", 30);
   displayCursor = true;
   count = 0;
 
-  namesTexture[0] = TextureManager::loadSentence(names[0].c_str());
-  namesTexture[1] = TextureManager::loadSentence(names[1].c_str());
+  namesTexture[0] = TextureManager::loadSentence(names[0].c_str(), 30);
+  namesTexture[1] = TextureManager::loadSentence(names[1].c_str(), 30);
 }
 
 void GameMenu::loadImg() {
@@ -159,12 +159,12 @@ void GameMenu::update() {
     }
     if (names[i] != "") {
       // Render new text
-      namesTexture[i] = TextureManager::loadSentence(names[i].c_str());
+      namesTexture[i] = TextureManager::loadSentence(names[i].c_str(), 30);
     }
     // Text is empty
     else {
       // Render space texture
-      namesTexture[i] = TextureManager::loadSentence(" ");
+      namesTexture[i] = TextureManager::loadSentence(" ", 30);
     }
   }
 
