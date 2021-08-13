@@ -7,6 +7,12 @@ GameMenu::GameMenu(Game *_gameRef) : gameRef(_gameRef) {}
 GameMenu::~GameMenu() {
   SDL_DestroyTexture(exitTexture);
   SDL_DestroyTexture(startTexture);
+  for (int i = 0; i < 2; i++) {
+    SDL_DestroyTexture(namesTexture[i]);
+    SDL_DestroyTexture(namesPromptTexture[i]);
+  }
+  SDL_DestroyTexture(cursorTexture);
+  SDL_DestroyTexture(backdropTexture);
 }
 
 void GameMenu::init() {
@@ -18,9 +24,9 @@ void GameMenu::init() {
   SDL_QueryTexture(exitTexture, NULL, NULL, &exitButton.w, &exitButton.h);
   exitButton.x = WINDOW_WIDTH / 2 - exitButton.w / 2;
   exitButton.y = WINDOW_HEIGHT / 2;
-  backdrop.w=WINDOW_WIDTH;
+  backdrop.w = WINDOW_WIDTH;
   backdrop.h = WINDOW_HEIGHT;
-  backdrop.x=backdrop.y=0;
+  backdrop.x = backdrop.y = 0;
 
   isNameOneTheFocus = false;
   names[0] = "Suban";
@@ -51,14 +57,14 @@ void GameMenu::loadImg() {
   if (!exit) {
     printf("IMG_Load: %s\n", IMG_GetError());
   }
-  backdropsur=IMG_Load("./assets/backdrop.jpg");
-    if(!start) {
-      printf("IMG_Load: %s\n", IMG_GetError());
-      // handle error
-    }
+  backdropsur = IMG_Load("./assets/backdrop.jpg");
+  if (!start) {
+    printf("IMG_Load: %s\n", IMG_GetError());
+    // handle error
+  }
   startTexture = SDL_CreateTextureFromSurface(Game::renderer, start);
   exitTexture = SDL_CreateTextureFromSurface(Game::renderer, exit);
-  backdropTexture = SDL_CreateTextureFromSurface(Game::renderer,backdropsur);
+  backdropTexture = SDL_CreateTextureFromSurface(Game::renderer, backdropsur);
   SDL_FreeSurface(start);
   SDL_FreeSurface(exit);
   SDL_FreeSurface(backdropsur);
@@ -116,7 +122,7 @@ void GameMenu::handleInput(SDL_Event &event) {
 
 void GameMenu::render() {
   int promptCoordinateX = WINDOW_WIDTH / 3;
-  
+
   SDL_Rect tempRect;
   // Renders the menu
   SDL_RenderCopy(Game::renderer, backdropTexture, NULL, &backdrop);

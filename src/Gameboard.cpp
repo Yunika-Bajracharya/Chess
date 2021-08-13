@@ -33,6 +33,7 @@ Gameboard::~Gameboard() {
   }
   SDL_DestroyTexture(colonTexture);
   SDL_DestroyTexture(outOfTimeTexture);
+  SDL_DestroyTexture(resetButtonTexture);
 }
 
 void Gameboard::init() {
