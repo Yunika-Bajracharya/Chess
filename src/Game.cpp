@@ -107,10 +107,10 @@ bool Game::running() { return isRunning; }
 
 void Game::createGameBoard(std::string name1, std::string name2) {
   if (name1.length() == 0) {
-    name1 += "Suban";
+    name1 += "Player 1";
   }
   if (name2.length() == 0) {
-    name2 += "Prabin";
+    name2 += "Player 2";
   }
   stateMachine.AddState(new Gameboard(name1, name2), true);
 }

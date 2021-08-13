@@ -17,7 +17,7 @@
 
 class Gameboard : public GameState {
 public:
-  Gameboard(std::string name1 = "Suban", std::string name2 = "Prabin");
+  Gameboard(std::string name1 = "Player 1", std::string name2 = "Player 2");
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
