@@ -8,7 +8,7 @@ GameMenu *menu = nullptr;
 
 Game::Game() {}
 
-Game::~Game() {}
+Game::~Game() { clean(); }
 
 void Game::init(const char *title, int xpos, int ypos, int width, int height,
                 bool fullscreen) {
@@ -43,15 +43,9 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     }
 
     isRunning = true;
+    SDL_StartTextInput();
 
-    // board->init();
     stateMachine.AddState(new GameMenu(this));
-    // stateMachine.AddState(new GameMenu());
-    // stateMachine.ProcessStateChanges();
-    // stateMachine.AddState(new Gameboard(), false);
-    // board = new Gameboard();
-    // board->init();
-
   } else {
     isRunning = false;
   }
@@ -75,8 +69,6 @@ void Game::handleEvents() {
 
 void Game::update() {
   count++;
-  // stateMachine.ProcessStateChanges();
-  // board->update();
   stateMachine.GetActiveState()->update();
 }
 void Game::render() {
@@ -85,10 +77,7 @@ void Game::render() {
   SDL_RenderClear(renderer);
 
   // TODO
-  // board->render();
-
   stateMachine.GetActiveState()->render();
-  // board->render();
 
   SDL_RenderPresent(renderer);
 }
@@ -106,4 +95,12 @@ void Game::exitGame() { this->isRunning = false; }
 
 bool Game::running() { return isRunning; }
 
-void Game::createGameBoard() { stateMachine.AddState(new Gameboard(), true); }
+void Game::createGameBoard(std::string name1, std::string name2) {
+  if (name1.length() == 0) {
+    name1 += "Suban";
+  }
+  if (name2.length() == 0) {
+    name2 += "Prabin";
+  }
+  stateMachine.AddState(new Gameboard(name1, name2), true);
+}

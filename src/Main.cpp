@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         SDL_Delay(frameDelay - frameTime);
       }
     }
-    game->clean();
+    delete game;
     return 0;
   }
 

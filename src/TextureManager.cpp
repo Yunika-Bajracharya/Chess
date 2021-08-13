@@ -33,6 +33,7 @@ SDL_Texture *TextureManager::loadSentence(const char *sentence) {
   SDL_Texture *Message =
       SDL_CreateTextureFromSurface(Game::renderer, surfaceMessage);
   SDL_FreeSurface(surfaceMessage);
+  TTF_CloseFont(Roboto);
 
   return Message;
 }
