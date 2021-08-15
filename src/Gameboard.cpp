@@ -40,6 +40,8 @@ Gameboard::~Gameboard() {
   SDL_DestroyTexture(colonTexture);
   SDL_DestroyTexture(outOfTimeTexture);
   SDL_DestroyTexture(resetButtonTexture);
+
+  SoundManager::clean();
 }
 
 void Gameboard::init() {
@@ -96,6 +98,8 @@ void Gameboard::init() {
     no[1] = '\0';
     horizontalNotation[l] = TextureManager::loadSentence(no, 30);
   }
+
+  SoundManager::init();
 }
 
 void Gameboard::setBoard() {

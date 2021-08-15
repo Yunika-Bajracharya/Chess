@@ -210,17 +210,24 @@ bool Engine::placePiece(Move move, BoardState &state) {
 
   // If the move was a castle, casteling
   // TODO Remeber to remove castleability
-  if (movingPiece->getTextureColumn() == 0) {
-    if (move.startPos.j - move.endPos.j == -2) {
+  if (movingPiece->getTextureColumn() == 0) {    // If it was a king
+    if (move.startPos.j - move.endPos.j == -2) { // that just did a castle
+      // Rook's previous position
       Coordinate rookPos = {move.endPos.i, move.endPos.j + 1};
       Piece *rook = state.getPiece(rookPos);
-      rookPos = {move.endPos.i, move.endPos.j - 1};
+      state.board[rookPos.i][rookPos.j] = nullptr;
+
+      rookPos = {move.endPos.i, move.endPos.j - 1}; // rook's new position
       state.board[rookPos.i][rookPos.j] = rook;
       rook->moveTo(rookPos);
     } else if (move.startPos.j - move.endPos.j == 2) {
+
+      // Rook's previous position
       Coordinate rookPos = {move.endPos.i, move.endPos.j - 2};
       Piece *rook = state.getPiece(rookPos);
-      rookPos = {move.endPos.i, move.endPos.j + 1};
+      state.board[rookPos.i][rookPos.j] = nullptr;
+
+      rookPos = {move.endPos.i, move.endPos.j + 1}; // rook's new position
       state.board[rookPos.i][rookPos.j] = rook;
       rook->moveTo(rookPos);
     }
