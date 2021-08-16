@@ -5,9 +5,9 @@
 * SDL2_image, SDL2_mixer, SDL2_ttf
 
 ### How to use this? 🛠
-Click on the image below for set up and usage guide.
+Click on the image below for set up and usage instructions!
 <a href = "https://github.com/Yunika-Bajracharya/Chess/blob/main/installation.md">
-<img src = "./readme_assets/setup&installation.png"></a>
+<img src = "./readme_assets/setup&installation.png" width="150" height="280"></a>
 
 ### Developers
 1. Suban Shrestha 076BCT082 ([@suban244](https://github.com/suban244))
