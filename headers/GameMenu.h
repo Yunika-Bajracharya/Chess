@@ -1,6 +1,7 @@
 #pragma once
 #include "Game.h"
 #include "GameState.h"
+#include "Texture.h"
 #define CURSOR_BLINK_RATE 20
 
 class GameMenu : public GameState {
@@ -21,17 +22,16 @@ public:
 
 private:
   std::string names[2];
-  SDL_Texture *namesTexture[2];
   SDL_Rect namesBoxRect[2];
-  SDL_Texture *namesPromptTexture[2];
-  SDL_Texture *cursorTexture;
+  Texture cursorTexture;
+  Texture namesPromptTexture[2];
+  Texture namesTexture[2];
 
   bool isNameOneTheFocus;
   bool displayCursor;
   int count;
 
-  SDL_Rect startButton, exitButton,backdrop;
+  SDL_Rect startButton, exitButton, backdrop;
   Game *gameRef;
-  SDL_Surface *start, *exit, *backdropsur;
-  SDL_Texture *startTexture, *exitTexture, *backdropTexture;
+  Texture startTexture, exitTexture, backdropTexture;
 };

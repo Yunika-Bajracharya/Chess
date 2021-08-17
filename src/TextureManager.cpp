@@ -1,4 +1,7 @@
 #include "../headers/TextureManager.h"
+#include "../headers/Game.h"
+
+SDL_Color TextureManager::Black = {0, 0, 0, 255};
 
 SDL_Texture *TextureManager::loadTexture(const char *filename) {
   /*
@@ -20,16 +23,17 @@ void TextureManager::Draw(SDL_Texture *tex, SDL_Rect &src, SDL_Rect &dest) {
   SDL_RenderCopy(Game::renderer, tex, &src, &dest);
 }
 
-SDL_Texture *TextureManager::loadSentence(const char *sentence, int fontSize) {
+SDL_Texture *TextureManager::loadSentence(const char *sentence, int fontSize,
+                                          SDL_Color sentenceColor) {
   /*
    * Loads a sentence as texture
    */
 
   TTF_Font *Roboto = TTF_OpenFont("assets/Roboto.ttf", fontSize);
   // SDL_Color White = {255, 255, 255, 255};
-  SDL_Color Black = {0, 0, 0, 255};
 
-  SDL_Surface *surfaceMessage = TTF_RenderText_Solid(Roboto, sentence, Black);
+  SDL_Surface *surfaceMessage =
+      TTF_RenderText_Solid(Roboto, sentence, sentenceColor);
   SDL_Texture *Message =
       SDL_CreateTextureFromSurface(Game::renderer, surfaceMessage);
   SDL_FreeSurface(surfaceMessage);

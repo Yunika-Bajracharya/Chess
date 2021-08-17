@@ -4,25 +4,16 @@
 bool buttonPress(int x, int y, const SDL_Rect &rect);
 
 GameMenu::GameMenu(Game *_gameRef) : gameRef(_gameRef) {}
-GameMenu::~GameMenu() {
-  std::cout << "GameMenu destroyed" << std::endl;
-  SDL_DestroyTexture(exitTexture);
-  SDL_DestroyTexture(startTexture);
-  for (int i = 0; i < 2; i++) {
-    SDL_DestroyTexture(namesTexture[i]);
-    SDL_DestroyTexture(namesPromptTexture[i]);
-  }
-  SDL_DestroyTexture(cursorTexture);
-  SDL_DestroyTexture(backdropTexture);
-}
+GameMenu::~GameMenu() { std::cout << "GameMenu destroyed" << std::endl; }
 
 void GameMenu::init() {
   GameMenu::loadImg();
   // Initialize Texture and stuff
-  SDL_QueryTexture(startTexture, NULL, NULL, &startButton.w, &startButton.h);
+  startTexture.queryTexture(startButton.w, startButton.h);
   startButton.x = WINDOW_WIDTH / 2 - startButton.w / 2;
   startButton.y = WINDOW_HEIGHT / 2 - startButton.h / 5 - startButton.h;
-  SDL_QueryTexture(exitTexture, NULL, NULL, &exitButton.w, &exitButton.h);
+
+  exitTexture.queryTexture(exitButton.w, exitButton.h);
   exitButton.x = WINDOW_WIDTH / 2 - exitButton.w / 2;
   exitButton.y = WINDOW_HEIGHT / 2;
   backdrop.w = WINDOW_WIDTH;
@@ -36,39 +27,21 @@ void GameMenu::init() {
   namesBoxRect[0].y = WINDOW_HEIGHT / 8;
   namesBoxRect[1].y = WINDOW_HEIGHT / 8 + WINDOW_HEIGHT / 12;
   namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH / 2;
- 
-  namesPromptTexture[0] = TextureManager::loadSentence("Player 1 name: ", 30);
-  namesPromptTexture[1] = TextureManager::loadSentence("Player 2 name: ", 30);
-  cursorTexture = TextureManager::loadSentence("|", 30);
+
+  namesPromptTexture[0].loadSentence("Player 1 name: ", 30);
+  namesPromptTexture[1].loadSentence("Player 2 name: ", 30);
+  cursorTexture.loadSentence("|", 30);
   displayCursor = true;
   count = 0;
 
-  namesTexture[0] = TextureManager::loadSentence(names[0].c_str(), 30);
-  namesTexture[1] = TextureManager::loadSentence(names[1].c_str(), 30);
+  namesTexture[0].loadSentence(names[0].c_str(), 30);
+  namesTexture[1].loadSentence(names[1].c_str(), 30);
 }
 
 void GameMenu::loadImg() {
-
-  start = IMG_Load("./assets/start.png");
-  if (!start) {
-    printf("IMG_Load: %s\n", IMG_GetError());
-    // handle error
-  }
-  exit = IMG_Load("./assets/exit.png");
-  if (!exit) {
-    printf("IMG_Load: %s\n", IMG_GetError());
-  }
-  backdropsur = IMG_Load("./assets/backdrop.jpg");
-  if (!start) {
-    printf("IMG_Load: %s\n", IMG_GetError());
-    // handle error
-  }
-  startTexture = SDL_CreateTextureFromSurface(Game::renderer, start);
-  exitTexture = SDL_CreateTextureFromSurface(Game::renderer, exit);
-  backdropTexture = SDL_CreateTextureFromSurface(Game::renderer, backdropsur);
-  SDL_FreeSurface(start);
-  SDL_FreeSurface(exit);
-  SDL_FreeSurface(backdropsur);
+  startTexture.loadFromFile("./assets/start.png");
+  exitTexture.loadFromFile("./assets/exit.png");
+  backdropTexture.loadFromFile("./assets/backdrop.jpg");
 }
 
 void GameMenu::handleInput(SDL_Event &event) {
@@ -126,29 +99,23 @@ void GameMenu::render() {
 
   SDL_Rect tempRect;
   // Renders the menu
-  SDL_RenderCopy(Game::renderer, backdropTexture, NULL, &backdrop);
-  SDL_RenderCopy(Game::renderer, startTexture, NULL, &startButton);
-  SDL_RenderCopy(Game::renderer, exitTexture, NULL, &exitButton);
+  backdropTexture.render(&backdrop);
+  startTexture.render(&startButton);
+  exitTexture.render(&exitButton);
 
   // Render name prompts
   for (int i = 0; i < 2; i++) {
-    SDL_QueryTexture(namesPromptTexture[i], NULL, NULL, &tempRect.w,
-                     &tempRect.h);
     tempRect.x = promptCoordinateX;
     tempRect.y = namesBoxRect[i].y;
-    SDL_RenderCopy(Game::renderer, namesPromptTexture[i], NULL, &tempRect);
-
-    SDL_QueryTexture(namesTexture[i], NULL, NULL, &namesBoxRect[i].w,
-                     &namesBoxRect[i].h);
-    SDL_RenderCopy(Game::renderer, namesTexture[i], NULL, &namesBoxRect[i]);
+    namesPromptTexture[i].render(tempRect.x, tempRect.y);
+    namesTexture[i].render(namesBoxRect[i].x, namesBoxRect[i].y);
   }
   // Render the cursor
   if (displayCursor) {
     tempRect.y = namesBoxRect[isNameOneTheFocus].y;
-    tempRect.x =
-        namesBoxRect[isNameOneTheFocus].x + namesBoxRect[isNameOneTheFocus].w;
-    SDL_QueryTexture(cursorTexture, NULL, NULL, &tempRect.w, &tempRect.h);
-    SDL_RenderCopy(Game::renderer, cursorTexture, NULL, &tempRect);
+    tempRect.x = namesBoxRect[isNameOneTheFocus].x +
+                 namesTexture[isNameOneTheFocus].getWidth();
+    cursorTexture.render(tempRect.x, tempRect.y);
   }
 }
 
@@ -156,16 +123,17 @@ void GameMenu::update() {
   // Update information of the menu
   for (int i = 0; i < 2; i++) {
     if (count > 0) {
-      SDL_DestroyTexture(namesTexture[i]);
     }
     if (names[i] != "") {
       // Render new text
-      namesTexture[i] = TextureManager::loadSentence(names[i].c_str(), 30);
+      namesTexture[i].loadSentence(names[i].c_str(), 30);
+      namesBoxRect[i].h = namesTexture[i].getHeight();
+      namesBoxRect[i].w = namesTexture[i].getWidth();
     }
     // Text is empty
     else {
       // Render space texture
-      namesTexture[i] = TextureManager::loadSentence(" ", 30);
+      namesTexture[i].loadSentence(" ", 30);
     }
   }
 
