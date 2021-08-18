@@ -47,9 +47,9 @@ if [[ "$CHECK_DEPENDENCIES" == "TRUE" ]]; then
      fi
    done
 
-  elif [ "$OS" = '"ubuntu debian"' ]; then 
+  elif [ "$OS" = '"ubuntu debian"' ] || [ "$OS" = "debian" ]; then 
    echo "debian"
-   dependencies=("libsdl2-dev" "cmake" "libsdl2-image-dev" "libsdl2-ttf-dev" "libsdl2-mixer-2.0-0")
+   dependencies=("g++" "libsdl2-dev" "cmake" "libsdl2-image-dev" "libsdl2-ttf-dev" "libsdl2-mixer-dev")
     for i in "${dependencies[@]}"; do
      if dpkg -l $i > /dev/null; then
        echo "The package $i is installed"
@@ -59,6 +59,17 @@ if [[ "$CHECK_DEPENDENCIES" == "TRUE" ]]; then
        sudo apt-get install $i
      fi
     done
+    g++ src/* -lSDL2 -lGL -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+    # running is the variable is not false
+    if [[ "$RUN" == "FALSE" ]]; then
+      echo "Build complete. Executable at $(pwd)"
+    elif [ -f Chess ]; then
+      echo "Running program"
+      ./Chess;
+    else
+      echo "Something seems to be wrong"
+    fi
+    exit 0
   else 
    echo "Unrecognized distro"
    echo "Install the following dependencies"
