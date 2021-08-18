@@ -17,7 +17,8 @@
 
 class Gameboard : public GameState {
 public:
-  Gameboard(std::string name1 = "Player 1", std::string name2 = "Player 2");
+  Gameboard(std::string name1 = "Player 1", std::string name2 = "Player 2",
+            int _startTimeInMinutes = 10);
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
@@ -47,6 +48,8 @@ private:
   Player *players[2];
   int playerTime[2];
   std::string PlayerNames[2];
+  bool hasPlayedMove[2];
+  int startTimeInMinutes;
 
   SDL_Rect resetButtonRect;
   Texture horizontalNotation[8];

@@ -1,15 +1,35 @@
-dependencies=("sdl2" "sdl2_image" "sdl2_ttf" "sdl2_mixer" "cmake")
+OS=$(awk -F'=' '/ID_LIKE/{print $2}' /etc/os-release)
+
 
 # Downloading Dependencies
-for i in "${dependencies[@]}"; do
-  if pacman -Qi $i > /dev/null; then
-    echo "The package $i is installed"
-  else 
-    echo "The package $i is not installed"
-    echo "Installing the package $i"
-    sudo pacman -S $i
-  fi
-done
+
+if [ "$OS" = "arch" ]; then
+  dependencies=("sdl2" "sdl2_image" "sdl2_ttf" "sdl2_mixer" "cmake")
+  for i in "${dependencies[@]}"; do
+    if pacman -Qi $i > /dev/null; then
+      echo "The package $i is installed"
+    else 
+      echo "The package $i is not installed"
+      echo "Installing the package $i"
+      sudo pacman -S $i
+    fi
+  done
+
+elif [ "$OS" = "ubuntu debian" ]; then 
+  echo "debian"
+  dependencies=("libsdl2-dev" "cmake" "libsdl2-image-dev" "libsdl2-ttf-dev" "libsdl2-mixer-2.0-0")
+   for i in "${dependencies[@]}"; do
+    if dpkg -l $i > /dev/null; then
+      echo "The package $i is installed"
+    else 
+      echo "The package $i is not installed"
+      echo "Installing the package $i"
+      sudo apt-get install $i
+    fi
+  done
+else 
+  echo "Unrecognized distro"
+fi
 
 # Running cmake
 cmake -S . -B build

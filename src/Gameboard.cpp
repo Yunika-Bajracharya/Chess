@@ -10,13 +10,15 @@ std::map<int, promotion> promotionMap{
 
 void clockTickToTime(int clock, int timeInfo[4]);
 
-void makeMove(Coordinate location, BoardState &state,
+bool makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
               std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
               LastMove &lastMove, Promotion::uiInfo &promotionInfo,
               int promotionID = 0);
 
-Gameboard::Gameboard(std::string name1, std::string name2) {
+Gameboard::Gameboard(std::string name1, std::string name2,
+                     int _startTimeInMinutes)
+    : startTimeInMinutes(_startTimeInMinutes) {
   PlayerNames[0] = name1;
   PlayerNames[1] = name2;
 }
@@ -87,6 +89,8 @@ void Gameboard::setBoard() {
   promotionInfo.promotion = false;
   state.players[0] = new Player(PlayerNames[0], true);
   state.players[1] = new Player(PlayerNames[1], false);
+  hasPlayedMove[0] = false;
+  hasPlayedMove[1] = false;
 
   // Handle FEN string
   Engine::handleFENString(STARTING_FEN, state);
@@ -95,9 +99,8 @@ void Gameboard::setBoard() {
   lastMove.made = false;
   Engine::generateAllMoves(state, allMoves);
 
-  int timeInMinutes = 10;
   // Creating Players
-  playerTime[0] = playerTime[1] = timeInMinutes * 60 * FPS;
+  playerTime[0] = playerTime[1] = startTimeInMinutes * 60 * FPS;
 }
 
 void Gameboard::resetBoard() {
@@ -176,14 +179,18 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       }
       return;
     }
-    makeMove(location, state, allMoves, moves, lastMoveState, lastMove,
-             promotionInfo);
+    bool success = makeMove(location, state, allMoves, moves, lastMoveState,
+                            lastMove, promotionInfo);
     moves.clear();
+
+    if (success) {
+      hasPlayedMove[state.isWhiteTurn] = true;
+    }
   }
   state.dragPieceId = 0;
 }
 
-void makeMove(Coordinate location, BoardState &state,
+bool makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
               std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
               LastMove &lastMove, Promotion::uiInfo &promotionInfo,
@@ -216,11 +223,15 @@ void makeMove(Coordinate location, BoardState &state,
       }
     }
   }
+  return info.success;
 }
 
 void Gameboard::update() {
   if ((lastMoveState == lastMoveInfo::None) ||
       (lastMoveState == lastMoveInfo::Check)) {
+    if (!hasPlayedMove[!state.isWhiteTurn])
+      return;
+
     playerTime[!state.isWhiteTurn]--;
     if (playerTime[!state.isWhiteTurn] < 0) {
       lastMoveState = lastMoveInfo::OutofTime;
@@ -308,14 +319,6 @@ void Gameboard::render() {
   }
 
   // Render all pieces
-  /*
-   * TODO: BUG
-   * If you try to move the white's queen on top of black's bishop
-   * the queen is rendered below the bishop
-   * TODO: Make it so that piece being dragged is rendered after all pieces
-   * are rendered
-   */
-
   srcRect.h = srcRect.w = 80;
   int capturedPieceOffset[2] = {0, 0};
   int capturedPieceOffsetHeight[2] = {0, 0};
@@ -353,19 +356,23 @@ void Gameboard::render() {
         continue;
       }
 
-      if (piece->getID() == state.dragPieceId) {
-        SDL_GetMouseState(&destRect.x, &destRect.y);
-        destRect.x -= destRect.w / 2;
-        destRect.y -= destRect.h / 2;
-        pieceTexture.render(&destRect, &srcRect);
-
-      } else {
+      if (!(piece->getID() == state.dragPieceId)) {
         Coordinate tempCoordinate = piece->getCoordinate();
         destRect.x = boardStartPos.j + tempCoordinate.j * BLOCK_WIDTH;
         destRect.y = boardStartPos.i + tempCoordinate.i * BLOCK_WIDTH;
         pieceTexture.render(&destRect, &srcRect);
       }
     }
+  }
+  // Render Dragged piece
+  Piece *draggedPiece = state.getPiece(state.dragPieceId);
+  if (draggedPiece) {
+    SDL_GetMouseState(&destRect.x, &destRect.y);
+    destRect.x -= destRect.w / 2;
+    destRect.y -= destRect.h / 2;
+    srcRect.y = (draggedPiece->isWhite()) ? 0 : srcRect.h;
+    srcRect.x = draggedPiece->getTextureColumn() * srcRect.h;
+    pieceTexture.render(&destRect, &srcRect);
   }
 
   /*
