@@ -1,7 +1,7 @@
 #include "../headers/StateMachine.h"
 
 StateMachine::StateMachine() {}
-StateMachine::~StateMachine() {}
+StateMachine::~StateMachine() { clear(); }
 
 void StateMachine::AddState(GameState *newState, bool isReplacing) {
   this->_newState = newState;

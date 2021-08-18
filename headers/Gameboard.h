@@ -11,13 +11,14 @@
 #include "Rook.h"
 
 #include "SoundManager.h"
-#include "TextureManager.h"
+#include "Texture.h"
 
 #include "GameState.h"
 
 class Gameboard : public GameState {
 public:
-  Gameboard(std::string name1 = "Player 1", std::string name2 = "Player 2");
+  Gameboard(std::string name1 = "Player 1", std::string name2 = "Player 2",
+            int _startTimeInMinutes = 10);
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
@@ -47,16 +48,20 @@ private:
   Player *players[2];
   int playerTime[2];
   std::string PlayerNames[2];
+  bool hasPlayedMove[2];
+  int startTimeInMinutes;
 
   SDL_Rect resetButtonRect;
-  SDL_Texture *resetButtonTexture;
-  SDL_Texture *playerNamesTexture[2]; // Stores the texture of name of players
-  SDL_Texture *pieceTexture;          // Stores texture of all pieces
-  SDL_Texture *checkTexture, *checkMateTexture, *outOfTimeTexture,
-      *matchDrawTexture;
-  SDL_Texture *wonTexture;
-  SDL_Texture *numberTextures[10]; // Stores the textures for numbers 0-9
-  SDL_Texture *horizontalNotation[8];
-  SDL_Texture *verticalNotation[8];
-  SDL_Texture *colonTexture;
+  Texture horizontalNotation[8];
+  Texture verticalNotation[8];
+
+  Texture playerNamesTexture[2]; // Stores the texture of player
+
+  Texture resetButtonTexture;
+  Texture checkTexture, checkMateTexture, outOfTimeTexture, matchDrawTexture;
+  Texture numberTextures[10]; // Stores the textures for numbers 0-9
+  Texture wonTexture;
+  Texture colonTexture;
+
+  Texture pieceTexture; // Stores texture of all pieces
 };
