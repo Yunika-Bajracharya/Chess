@@ -59,7 +59,7 @@ if [[ "$CHECK_DEPENDENCIES" == "TRUE" ]]; then
        sudo apt-get install $i
      fi
     done
-    g++ src/* -lSDL2 -lGL -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+    g++ src/* -lSDL2 -lGL -lSDL2_image -lSDL2_mixer -lSDL2_ttf -o Chess
     # running is the variable is not false
     if [[ "$RUN" == "FALSE" ]]; then
       echo "Build complete. Executable at $(pwd)"
