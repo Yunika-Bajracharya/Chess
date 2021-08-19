@@ -35,7 +35,8 @@ public:
 
   void pause() override;
   void resume() override;
-
+  void loadImg();
+  
 private:
   BoardState state;
   Coordinate boardStartPos; // The top left edge of board

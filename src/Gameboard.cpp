@@ -30,7 +30,7 @@ Gameboard::~Gameboard() {
 
 void Gameboard::init() {
   setBoard();
-
+  Gameboard::loadImg();
   // Some stuff here
   boardStartPos.j = WINDOW_WIDTH / 2 - 4 * BLOCK_WIDTH;
   boardStartPos.i = WINDOW_HEIGHT / 2 - 4 * BLOCK_WIDTH;
@@ -54,7 +54,6 @@ void Gameboard::init() {
    */
   checkTexture.loadSentence("Check");
   checkMateTexture.loadSentence("Checkmate");
-  wonTexture.loadSentence("WON");
   matchDrawTexture.loadSentence("Draw");
   for (int i = 0; i < 10; i++) {
     char num[2];
@@ -82,6 +81,11 @@ void Gameboard::init() {
   }
 
   SoundManager::init();
+}
+
+// loading crown image when player wins
+void Gameboard::loadImg() {
+  wonTexture.loadFromFile("./assets/crown.png");
 }
 
 void Gameboard::setBoard() {
