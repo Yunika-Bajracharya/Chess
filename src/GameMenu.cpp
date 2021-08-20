@@ -11,23 +11,28 @@ void GameMenu::init() {
   // Initialize Texture and stuff
   startTexture.queryTexture(startButton.w, startButton.h);
   startButton.x = WINDOW_WIDTH / 2 - startButton.w / 2;
-  startButton.y = WINDOW_HEIGHT / 2 - startButton.h / 5 - startButton.h;
-
+  startButton.y = WINDOW_HEIGHT / 2 ;
   exitTexture.queryTexture(exitButton.w, exitButton.h);
   exitButton.x = WINDOW_WIDTH / 2 - exitButton.w / 2;
-  exitButton.y = WINDOW_HEIGHT / 2;
+  exitButton.y = WINDOW_HEIGHT / 2 + startButton.h/5 +startButton.h;
   backdrop.w = WINDOW_WIDTH;
   backdrop.h = WINDOW_HEIGHT;
   backdrop.x = backdrop.y = 0;
+  squareTexture.queryTexture(square.w, square.h);
+  square.x= WINDOW_WIDTH / 2  - square.w/2;
+  square.y= WINDOW_HEIGHT/2  -WINDOW_HEIGHT/3;
+  squarTexture.queryTexture(squar.w, squar.h);
+  squar.x= WINDOW_WIDTH / 2  - squar.w/2;
+  squar.y= WINDOW_HEIGHT/2  -WINDOW_HEIGHT/3 + squar.h/5 + squar.h;
 
   isNameOneTheFocus = false;
   names[0] = "Player 1";
   names[1] = "Player 2";
 
-  namesBoxRect[0].y = WINDOW_HEIGHT / 8;
-  namesBoxRect[1].y = WINDOW_HEIGHT / 8 + WINDOW_HEIGHT / 12;
-  namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH / 2;
-
+  namesBoxRect[0].y = WINDOW_HEIGHT/2 -WINDOW_HEIGHT/3 +30 ;
+  namesBoxRect[1].y = WINDOW_HEIGHT/3 +30;
+  namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH/2 +10;
+ 
   namesPromptTexture[0].loadSentence("Player 1 name: ", 30);
   namesPromptTexture[1].loadSentence("Player 2 name: ", 30);
   cursorTexture.loadSentence("|", 30);
@@ -42,6 +47,8 @@ void GameMenu::loadImg() {
   startTexture.loadFromFile("./assets/start.png");
   exitTexture.loadFromFile("./assets/exit.png");
   backdropTexture.loadFromFile("./assets/backdrop.jpg");
+  squareTexture.loadFromFile("./assets/square.png");
+  squarTexture.loadFromFile("./assets/square.png");
 }
 
 void GameMenu::handleInput(SDL_Event &event) {
@@ -95,13 +102,15 @@ void GameMenu::handleInput(SDL_Event &event) {
 }
 
 void GameMenu::render() {
-  int promptCoordinateX = WINDOW_WIDTH / 3;
+  int promptCoordinateX = WINDOW_WIDTH / 2 - WINDOW_WIDTH/7 -10;
 
   SDL_Rect tempRect;
   // Renders the menu
   backdropTexture.render(&backdrop);
   startTexture.render(&startButton);
   exitTexture.render(&exitButton);
+  squareTexture.render(&square);
+  squarTexture.render(&squar);
 
   // Render name prompts
   for (int i = 0; i < 2; i++) {
