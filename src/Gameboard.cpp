@@ -35,7 +35,6 @@ void Gameboard::init() {
   boardStartPos.j = WINDOW_WIDTH / 2 - 4 * BLOCK_WIDTH;
   boardStartPos.i = WINDOW_HEIGHT / 2 - 4 * BLOCK_WIDTH;
 
-  resetButtonTexture.loadSentence("Reset");
   resetButtonRect.w = resetButtonTexture.getWidth();
   resetButtonRect.h = resetButtonTexture.getHeight();
   resetButtonRect.x = boardStartPos.j - resetButtonRect.w - BLOCK_WIDTH / 2;
@@ -43,33 +42,26 @@ void Gameboard::init() {
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
-    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str());
+    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 30);
   }
 
   // Load piece Textures
   pieceTexture.loadFromFile("assets/pieces.png");
 
-  /*
-   *  Load some word textures
-   */
-  checkTexture.loadSentence("Check");
-  checkMateTexture.loadSentence("Checkmate");
-  matchDrawTexture.loadSentence("Draw");
   for (int i = 0; i < 10; i++) {
     char num[2];
     num[0] = i + ASCII_OFFSET;
     num[1] = '\0';
-    numberTextures[i].loadSentence(num);
+    numberTextures[i].loadSentence(num,30);
   }
-  colonTexture.loadSentence(":");
-  outOfTimeTexture.loadSentence("Out of time.");
+  colonTexture.loadSentence(":",30);
 
   // load vertical notation textures
   for (int l = 1; l < 9; l++) {
     char no[2];
     no[0] = l + ASCII_OFFSET;
     no[1] = '\0';
-    verticalNotation[l - 1].loadSentence(no, 30);
+    verticalNotation[l - 1].loadSentence(no, 25);
   }
 
   // load horizontal notation textures
@@ -77,15 +69,20 @@ void Gameboard::init() {
     char no[2];
     no[0] = char(l + 97);
     no[1] = '\0';
-    horizontalNotation[l].loadSentence(no, 30);
+    horizontalNotation[l].loadSentence(no, 25);
   }
 
   SoundManager::init();
 }
 
-// loading crown image when player wins
+// loading images
 void Gameboard::loadImg() {
   wonTexture.loadFromFile("./assets/crown.png");
+  resetButtonTexture.loadFromFile("./assets/reset.png");
+  checkTexture.loadFromFile("./assets/check.png");
+  checkMateTexture.loadFromFile("./assets/checkmate.png");
+  matchDrawTexture.loadFromFile("./assets/draw.png");
+  outOfTimeTexture.loadFromFile("./assets/timeup.png");
 }
 
 void Gameboard::setBoard() {
@@ -287,7 +284,7 @@ void Gameboard::render() {
       if (i == 7) {
         horizontalNotation[j].queryTexture(notationRect.w, notationRect.h);
         notationRect.x = destRect.x - (notationRect.w - 55);
-        notationRect.y = destRect.y + notationRect.h + 40;
+        notationRect.y = destRect.y + notationRect.h + 50;
         horizontalNotation[j].render(&notationRect);
       }
       if (lastMove.made) {
@@ -386,7 +383,7 @@ void Gameboard::render() {
   // Render Player Names
   for (int i = 0; i < 2; i++) {
     posX = rightSideRenderingInitialPosition;
-    posY = (i == 0) ? 0.85 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
+    posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
     float timeDataDirection = i == 1 ? 1.1 : -1.1;
 
     playerNamesTexture[i].render(posX, posY);
