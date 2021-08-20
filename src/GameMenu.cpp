@@ -46,7 +46,7 @@ void GameMenu::init() {
 void GameMenu::loadImg() {
   startTexture.loadFromFile("./assets/start.png");
   exitTexture.loadFromFile("./assets/exit.png");
-  backdropTexture.loadFromFile("./assets/backdrop.jpg");
+  backdropTexture.loadFromFile("./assets/backdrop.png");
   squareTexture.loadFromFile("./assets/square.png");
   squarTexture.loadFromFile("./assets/square.png");
 }
