@@ -30,15 +30,23 @@ public:
                           std::vector<std::vector<Move>> &allMovesSrc,
                           std::vector<Move> &movesDest);
 
-  enum EngineDifficulty { None, Random };
+  enum EngineDifficulty { None, Random, Evaluated };
 
   // static void setEngineDifficulty(EngineDifficulty _difficulty);
   static Move *generateAIMove(BoardState &state,
                               std::vector<std::vector<Move>> &allMoves);
+  static int evaluateState(const BoardState &state);
 
   static bool placePiece(Move move, BoardState &state);
+
   friend class Test;
 
 private:
   static void addPiece(Piece *piece, BoardState &state);
+  static Move *randomAI(BoardState &state,
+                        std::vector<std::vector<Move>> &allMoves);
+  static Move *evaluateAI(BoardState &state,
+                          std::vector<std::vector<Move>> &allMoves);
+  static int miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
+                     int beta);
 };

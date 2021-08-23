@@ -1,5 +1,7 @@
 #include "../headers/Engine.h"
 
+std::map<int, int> PieceValue{{0, 0},  {1, 90}, {2, 30},
+                              {3, 30}, {4, 50}, {5, 10}};
 // Engine::EngineDifficulty difficulty = Engine::None;
 void Engine::handleFENString(std::string fenString, BoardState &state) {
   // First we initalize them into nullptr
@@ -340,17 +342,40 @@ int Engine::generateAllMoves(const BoardState &state,
     moves.clear();
   }
 
+  // std::cout << evaluateState(state) << std::endl;
   return count;
 }
 
 Move *Engine::generateAIMove(BoardState &state,
                              std::vector<std::vector<Move>> &allMoves) {
-
+  static int callCount = 0;
   Engine::EngineDifficulty difficulty = Engine::Random;
+  if (callCount >= 1) {
+    difficulty = Engine::Evaluated;
+  }
+
+  callCount++;
   if (difficulty == Engine::None) {
     return nullptr;
   }
 
+  switch (difficulty) {
+  case Engine::None: {
+    return nullptr;
+  }
+  case Engine::Random: {
+    return Engine::randomAI(state, allMoves);
+  }
+  case Engine::Evaluated: {
+    return Engine::evaluateAI(state, allMoves);
+  }
+  }
+
+  return nullptr;
+}
+
+Move *Engine::randomAI(BoardState &state,
+                       std::vector<std::vector<Move>> &allMoves) {
   int moveCount = 0;
   for (std::vector<Move> &moves : allMoves) {
     moveCount += moves.size();
@@ -358,20 +383,72 @@ Move *Engine::generateAIMove(BoardState &state,
   if (moveCount == 0) {
     return nullptr;
   }
-  if (difficulty == Engine::Random) {
-    std::srand(std::time(nullptr));
+  std::srand(std::time(nullptr));
 
-    int chosenMove = std::rand() / ((RAND_MAX + 1u) / moveCount);
-    for (std::vector<Move> &moves : allMoves) {
-      for (Move &move : moves) {
-        if (chosenMove <= 0) {
-          return new Move(move);
-        }
-        chosenMove--;
+  int chosenMove = std::rand() / ((RAND_MAX + 1u) / moveCount);
+  for (std::vector<Move> &moves : allMoves) {
+    for (Move &move : moves) {
+      if (chosenMove <= 0) {
+        return new Move(move);
       }
+      chosenMove--;
     }
   }
   return nullptr;
+}
+
+Move *Engine::evaluateAI(BoardState &state,
+                         std::vector<std::vector<Move>> &allMoves) {
+  // Say we are black
+
+  // int maxEval = state.isWhiteTurn ? -1000 : 1000;
+  int maxEval = -1000;
+  Move *maxEvalMove = nullptr;
+  for (std::vector<Move> &moves : allMoves) {
+    for (Move &move : moves) {
+      BoardState newState = state;
+      Engine::placePiece(move, newState);
+      int eval = Engine::miniMax(newState, 2, true);
+
+      if (eval > maxEval) {
+        maxEval = eval;
+        if (maxEvalMove)
+          delete maxEvalMove;
+        maxEvalMove = new Move(move);
+      }
+    }
+  }
+
+  return maxEvalMove;
+}
+
+int Engine::miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
+                    int beta) {
+  if (depth == 0) {
+    return evaluateState(state);
+  }
+  int maxEval = isMaximizing ? -1000 : 1000;
+  // Move *maxEvalMove = nullptr;
+
+  std::vector<std::vector<Move>> allMoves;
+  int count = Engine::generateAllMoves(state, allMoves);
+  if (count == 0) {
+    return maxEval * (-1);
+  }
+
+  for (std::vector<Move> &moves : allMoves) {
+    for (Move &move : moves) {
+      BoardState newState = state;
+      Engine::placePiece(move, newState);
+      int eval = miniMax(newState, depth - 1, !isMaximizing, -alpha, -beta);
+
+      bool test = isMaximizing ? (eval > maxEval) : (eval < maxEval);
+      if (test) {
+        maxEval = eval;
+      }
+    }
+  }
+  return maxEval;
 }
 
 void Engine::getMovelist(const Coordinate &c,
@@ -391,6 +468,20 @@ void Engine::getMovelist(const Coordinate &c,
       break;
     }
   }
+}
+
+int Engine::evaluateState(const BoardState &state) {
+  // Evaluated the position for the person who just played the move
+  int value = 0;
+  for (int i = 0; i < 2; i++) {
+    int factor = (state.isWhiteTurn == i) ? 1 : -1;
+    for (Piece *p : state.players[i]->pieces) {
+      if (p->isCaptured())
+        continue;
+      value += factor * PieceValue[p->getTextureColumn()];
+    }
+  }
+  return value;
 }
 
 bool Engine::canDirectAttackKing(const BoardState &state) {

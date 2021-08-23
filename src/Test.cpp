@@ -12,7 +12,7 @@ void Test::generateAllMoves(int depth, bool first) {
   state.players[0] = new Player("a", true);
   state.players[1] = new Player("b", false);
 
-  Engine::handleFENString(NEW_FEN, state);
+  Engine::handleFENString(STARTING_FEN, state);
   std::cout << getNumberOfMoves(depth, state, first) << std::endl;
 }
 
@@ -22,8 +22,8 @@ int Test::getNumberOfMoves(int depth, const BoardState &state, bool first) {
   Engine::generateAllMoves(state, allMoves);
 
   int count = 0;
-  for (std::vector<Move> moveList : allMoves) {
-    for (Move move : moveList) {
+  for (std::vector<Move> &moveList : allMoves) {
+    for (Move &move : moveList) {
       BoardState s = state;
       s.dragPieceLocation = move.startPos;
       s.dragPieceId = s.getID(move.startPos);
