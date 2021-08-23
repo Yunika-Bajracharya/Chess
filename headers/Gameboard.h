@@ -45,6 +45,8 @@ public:
   void resume() override;
   void loadImg();
 
+  void engineMove();
+
   void goToMainMenu();
 
 private:
@@ -60,6 +62,9 @@ private:
   Texture scoreTexture[2];
   void resetScoreTexture();
   MouseDownInfo mouseDownInfo;
+
+  bool useEngine;
+  bool enginePlaysWhite;
 
   LastMove lastMove;
   Player *players[2];

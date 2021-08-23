@@ -1,5 +1,6 @@
 #include "../headers/Engine.h"
 
+// Engine::EngineDifficulty difficulty = Engine::None;
 void Engine::handleFENString(std::string fenString, BoardState &state) {
   // First we initalize them into nullptr
   for (int i = 0; i < 8; i++) {
@@ -341,6 +342,38 @@ int Engine::generateAllMoves(const BoardState &state,
 
   return count;
 }
+
+Move *Engine::generateAIMove(BoardState &state,
+                             std::vector<std::vector<Move>> &allMoves) {
+
+  Engine::EngineDifficulty difficulty = Engine::Random;
+  if (difficulty == Engine::None) {
+    return nullptr;
+  }
+
+  int moveCount = 0;
+  for (std::vector<Move> &moves : allMoves) {
+    moveCount += moves.size();
+  }
+  if (moveCount == 0) {
+    return nullptr;
+  }
+  if (difficulty == Engine::Random) {
+    std::srand(std::time(nullptr));
+
+    int chosenMove = std::rand() / ((RAND_MAX + 1u) / moveCount);
+    for (std::vector<Move> &moves : allMoves) {
+      for (Move &move : moves) {
+        if (chosenMove <= 0) {
+          return new Move(move);
+        }
+        chosenMove--;
+      }
+    }
+  }
+  return nullptr;
+}
+
 void Engine::getMovelist(const Coordinate &c,
                          std::vector<std::vector<Move>> &allMovesSrc,
                          std::vector<Move> &movesDest) {

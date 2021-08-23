@@ -1,6 +1,7 @@
 #pragma once
 #include "Gameboard.h"
 #include "Structures.h"
+#include <ctime>
 #define ASCII_OFFSET 48
 
 class Test;
@@ -29,9 +30,15 @@ public:
                           std::vector<std::vector<Move>> &allMovesSrc,
                           std::vector<Move> &movesDest);
 
+  enum EngineDifficulty { None, Random };
+
+  // static void setEngineDifficulty(EngineDifficulty _difficulty);
+  static Move *generateAIMove(BoardState &state,
+                              std::vector<std::vector<Move>> &allMoves);
+
+  static bool placePiece(Move move, BoardState &state);
   friend class Test;
 
 private:
   static void addPiece(Piece *piece, BoardState &state);
-  static bool placePiece(Move move, BoardState &state);
 };

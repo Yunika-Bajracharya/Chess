@@ -12,24 +12,20 @@ void clockTickToTime(int clock, int timeInfo[4]);
 bool buttonPress(int x, int y, const SDL_Rect &rect);
 std::string scoreToString(float score);
 
-/*
-bool makeMove(Coordinate location, BoardState &state,
-              std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
-              LastMove &lastMove, Promotion::uiInfo &promotionInfo,
-              int promotionID = 0);
-              */
-
 Gameboard::Gameboard(Game *_gameRef, std::string name1, std::string name2,
                      int _startTimeInMinutes)
     : gameRef(_gameRef), startTimeInMinutes(_startTimeInMinutes) {
   PlayerNames[0] = name1;
   PlayerNames[1] = name2;
+  score[0] = score[1] = 0;
 }
 
 Gameboard::~Gameboard() { SoundManager::clean(); }
 
 void Gameboard::init() {
+  useEngine = true;
+  enginePlaysWhite = false;
+
   setBoard();
   Gameboard::loadImg();
   // Some stuff here
@@ -78,6 +74,8 @@ void Gameboard::init() {
   }
 
   SoundManager::init();
+
+  // Engine::setEngineDifficulty(Engine::Random);
 }
 
 // loading images
@@ -111,6 +109,10 @@ void Gameboard::setBoard() {
 
   // Creating Players
   playerTime[0] = playerTime[1] = startTimeInMinutes * 60 * FPS;
+
+  if (enginePlaysWhite && useEngine) {
+    Gameboard::engineMove();
+  }
 }
 
 void Gameboard::resetBoard() {
@@ -124,6 +126,7 @@ void Gameboard::resetBoard() {
   PlayerNames[1] = PlayerNames[0];
   PlayerNames[0] = tempStr;
   resetScoreTexture();
+  enginePlaysWhite = !enginePlaysWhite;
 
   delete state.players[0];
   delete state.players[1];
@@ -161,6 +164,11 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
             makeMove(promotionInfo.location, i + 1);
 
             promotionInfo.promotion = false;
+
+            if (useEngine && enginePlaysWhite == state.isWhiteTurn) {
+              Gameboard::engineMove();
+            }
+            break;
           }
         }
         return;
@@ -208,8 +216,10 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
     moves.clear();
 
     if (success) {
-
       hasPlayedMove[state.isWhiteTurn] = true;
+      if (useEngine && enginePlaysWhite == state.isWhiteTurn) {
+        Gameboard::engineMove();
+      }
     }
   }
   state.dragPieceId = 0;
@@ -515,6 +525,30 @@ void Gameboard::pause() {}
 void Gameboard::resume() {}
 
 void Gameboard::goToMainMenu() { gameRef->goBackToGameMenu(); }
+
+void Gameboard::engineMove() {
+  Move *move = Engine::generateAIMove(state, allMoves);
+  if (!move) {
+    return;
+  }
+  bool check = Engine::placePiece(*move, state);
+  lastMoveState = check ? lastMoveInfo::Check : lastMoveInfo::None;
+
+  int count = Engine::generateAllMoves(state, allMoves);
+  if (count == 0) {
+    if (check) {
+      lastMoveState = lastMoveInfo::CheckMate;
+    } else {
+      lastMoveState = lastMoveInfo::Draw;
+    }
+  }
+  lastMove.made = true;
+  lastMove.startPos = move->startPos;
+  lastMove.endPos = move->endPos;
+
+  delete move;
+  return;
+}
 
 void clockTickToTime(int clock, int timeInfo[4]) {
   int min, secs;
