@@ -2,7 +2,7 @@
 #include "../headers/BoardState.h"
 
 King::King(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
-  textureColumn = 0;
+  textureColumn = 0; // as per its position in image
 };
 
 King::~King() {}

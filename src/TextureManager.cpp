@@ -3,6 +3,7 @@
 
 SDL_Color TextureManager::Black = {0, 0, 0, 255};
 SDL_Color TextureManager::Green = {0, 255, 0, 255};
+SDL_Color TextureManager::darkGreen = {118, 150, 86};
 
 SDL_Texture *TextureManager::loadTexture(const char *filename) {
   /*
