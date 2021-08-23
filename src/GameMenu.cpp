@@ -4,35 +4,35 @@
 bool buttonPress(int x, int y, const SDL_Rect &rect);
 
 GameMenu::GameMenu(Game *_gameRef) : gameRef(_gameRef) {}
-GameMenu::~GameMenu() { std::cout << "GameMenu destroyed" << std::endl; }
+GameMenu::~GameMenu() {}
 
 void GameMenu::init() {
   GameMenu::loadImg();
   // Initialize Texture and stuff
   startTexture.queryTexture(startButton.w, startButton.h);
   startButton.x = WINDOW_WIDTH / 2 - startButton.w / 2;
-  startButton.y = WINDOW_HEIGHT / 2 ;
+  startButton.y = WINDOW_HEIGHT / 2;
   exitTexture.queryTexture(exitButton.w, exitButton.h);
   exitButton.x = WINDOW_WIDTH / 2 - exitButton.w / 2;
-  exitButton.y = WINDOW_HEIGHT / 2 + startButton.h/5 +startButton.h;
+  exitButton.y = WINDOW_HEIGHT / 2 + startButton.h / 5 + startButton.h;
   backdrop.w = WINDOW_WIDTH;
   backdrop.h = WINDOW_HEIGHT;
   backdrop.x = backdrop.y = 0;
   squareTexture.queryTexture(square.w, square.h);
-  square.x= WINDOW_WIDTH / 2  - square.w/2;
-  square.y= WINDOW_HEIGHT/2  -WINDOW_HEIGHT/3;
+  square.x = WINDOW_WIDTH / 2 - square.w / 2;
+  square.y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3;
   squarTexture.queryTexture(squar.w, squar.h);
-  squar.x= WINDOW_WIDTH / 2  - squar.w/2;
-  squar.y= WINDOW_HEIGHT/2  -WINDOW_HEIGHT/3 + squar.h/5 + squar.h;
+  squar.x = WINDOW_WIDTH / 2 - squar.w / 2;
+  squar.y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3 + squar.h / 5 + squar.h;
 
   isNameOneTheFocus = false;
   names[0] = "Player 1";
   names[1] = "Player 2";
 
-  namesBoxRect[0].y = WINDOW_HEIGHT/2 -WINDOW_HEIGHT/3 +30 ;
-  namesBoxRect[1].y = WINDOW_HEIGHT/3 +30;
-  namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH/2 +10;
- 
+  namesBoxRect[0].y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3 + 30;
+  namesBoxRect[1].y = WINDOW_HEIGHT / 3 + 30;
+  namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH / 2 + 10;
+
   namesPromptTexture[0].loadSentence("Player 1 name: ", 30);
   namesPromptTexture[1].loadSentence("Player 2 name: ", 30);
   cursorTexture.loadSentence("|", 30);
@@ -59,11 +59,9 @@ void GameMenu::handleInput(SDL_Event &event) {
     int y = event.button.y;
 
     if (buttonPress(x, y, startButton)) {
-      std::cout << "We start the game here" << std::endl;
       gameRef->createGameBoard(names[0], names[1]);
 
     } else if (buttonPress(x, y, exitButton)) {
-      std::cout << "Just Quit it" << std::endl;
       gameRef->exitGame();
 
     } else if (y > namesBoxRect[0].y &&
@@ -83,7 +81,6 @@ void GameMenu::handleInput(SDL_Event &event) {
           (event.text.text[0] == 'c' || event.text.text[0] == 'C' ||
            event.text.text[0] == 'v' || event.text.text[0] == 'V'))) {
       // Append character
-      std::cout << event.text.text;
       names[isNameOneTheFocus] += event.text.text;
     }
     break;
@@ -102,7 +99,7 @@ void GameMenu::handleInput(SDL_Event &event) {
 }
 
 void GameMenu::render() {
-  int promptCoordinateX = WINDOW_WIDTH / 2 - WINDOW_WIDTH/7 -10;
+  int promptCoordinateX = WINDOW_WIDTH / 2 - WINDOW_WIDTH / 7 - 10;
 
   SDL_Rect tempRect;
   // Renders the menu

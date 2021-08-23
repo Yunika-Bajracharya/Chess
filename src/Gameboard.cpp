@@ -9,24 +9,25 @@ std::map<int, promotion> promotionMap{
 }
 
 void clockTickToTime(int clock, int timeInfo[4]);
+bool buttonPress(int x, int y, const SDL_Rect &rect);
+std::string scoreToString(float score);
 
+/*
 bool makeMove(Coordinate location, BoardState &state,
               std::vector<std::vector<Move>> &allMoves,
               std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
               LastMove &lastMove, Promotion::uiInfo &promotionInfo,
               int promotionID = 0);
+              */
 
-Gameboard::Gameboard(std::string name1, std::string name2,
+Gameboard::Gameboard(Game *_gameRef, std::string name1, std::string name2,
                      int _startTimeInMinutes)
-    : startTimeInMinutes(_startTimeInMinutes) {
+    : gameRef(_gameRef), startTimeInMinutes(_startTimeInMinutes) {
   PlayerNames[0] = name1;
   PlayerNames[1] = name2;
 }
 
-Gameboard::~Gameboard() {
-  std::cout << "Gameboard Destroyed" << std::endl;
-  SoundManager::clean();
-}
+Gameboard::~Gameboard() { SoundManager::clean(); }
 
 void Gameboard::init() {
   setBoard();
@@ -40,6 +41,10 @@ void Gameboard::init() {
   resetButtonRect.x = boardStartPos.j - resetButtonRect.w - BLOCK_WIDTH / 2;
   resetButtonRect.y = WINDOW_HEIGHT / 2 - resetButtonRect.h / 2;
 
+  exitButtionTexture.queryTexture(exitButtionRect.w, exitButtionRect.h);
+  exitButtionRect.x = WINDOW_WIDTH * 0.05;
+  exitButtionRect.y = WINDOW_HEIGHT * 0.9;
+
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
     playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 30);
@@ -52,9 +57,9 @@ void Gameboard::init() {
     char num[2];
     num[0] = i + ASCII_OFFSET;
     num[1] = '\0';
-    numberTextures[i].loadSentence(num,30);
+    numberTextures[i].loadSentence(num, 30);
   }
-  colonTexture.loadSentence(":",30);
+  colonTexture.loadSentence(":", 30);
 
   // load vertical notation textures
   for (int l = 1; l < 9; l++) {
@@ -83,6 +88,7 @@ void Gameboard::loadImg() {
   checkMateTexture.loadFromFile("./assets/checkmate.png");
   matchDrawTexture.loadFromFile("./assets/draw.png");
   outOfTimeTexture.loadFromFile("./assets/timeup.png");
+  exitButtionTexture.loadSentence("Exit", 24, TextureManager::Green);
 }
 
 void Gameboard::setBoard() {
@@ -92,6 +98,9 @@ void Gameboard::setBoard() {
   state.players[1] = new Player(PlayerNames[1], false);
   hasPlayedMove[0] = false;
   hasPlayedMove[1] = false;
+
+  scoreTexture[0].loadSentence(scoreToString(score[0]), 30);
+  scoreTexture[1].loadSentence(scoreToString(score[1]), 30);
 
   // Handle FEN string
   Engine::handleFENString(STARTING_FEN, state);
@@ -105,9 +114,24 @@ void Gameboard::setBoard() {
 }
 
 void Gameboard::resetBoard() {
+  // We swap the names, namesTexture and scores
+  std::string tempStr;
+  int tempInt;
+  tempInt = score[1];
+  score[1] = score[0];
+  score[0] = tempInt;
+  tempStr = PlayerNames[1];
+  PlayerNames[1] = PlayerNames[0];
+  PlayerNames[0] = tempStr;
+  resetScoreTexture();
+
   delete state.players[0];
   delete state.players[1];
   setBoard();
+}
+void Gameboard::resetScoreTexture() {
+  playerNamesTexture[0].loadSentence(PlayerNames[0], 30);
+  playerNamesTexture[1].loadSentence(PlayerNames[1], 30);
 }
 
 void Gameboard::handleMouseDown(SDL_Event &event) {
@@ -134,8 +158,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
           if (location.i == promotionInfo.location.i + direction * i) {
             moves.push_back({state.dragPieceLocation, promotionInfo.location,
                              Promotion::promotionMap[i + 1]});
-            makeMove(promotionInfo.location, state, allMoves, moves,
-                     lastMoveState, lastMove, promotionInfo, i + 1);
+            makeMove(promotionInfo.location, i + 1);
 
             promotionInfo.promotion = false;
           }
@@ -170,32 +193,29 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
   Coordinate location = {y / BLOCK_WIDTH, x / BLOCK_WIDTH};
 
   if (event.button.button == SDL_BUTTON_LEFT) {
+    if (buttonPress(event.button.x, event.button.y, exitButtionRect)) {
+      Gameboard::goToMainMenu();
+      return;
+    }
     if (lastMoveState != lastMoveInfo::None &&
         lastMoveState != lastMoveInfo::Check) {
-      if (event.button.x > resetButtonRect.x &&
-          event.button.y > resetButtonRect.y &&
-          event.button.x < (resetButtonRect.x + resetButtonRect.w) &&
-          event.button.y < (resetButtonRect.y + resetButtonRect.h)) {
+      if (buttonPress(event.button.x, event.button.y, resetButtonRect)) {
         resetBoard();
       }
       return;
     }
-    bool success = makeMove(location, state, allMoves, moves, lastMoveState,
-                            lastMove, promotionInfo);
+    bool success = makeMove(location);
     moves.clear();
 
     if (success) {
+
       hasPlayedMove[state.isWhiteTurn] = true;
     }
   }
   state.dragPieceId = 0;
 }
 
-bool makeMove(Coordinate location, BoardState &state,
-              std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
-              LastMove &lastMove, Promotion::uiInfo &promotionInfo,
-              int promotionID) {
+bool Gameboard::makeMove(Coordinate location, int promotionID) {
 
   Promotion::promotion promotion = Promotion::None;
   // handlePromotionindex
@@ -219,9 +239,13 @@ bool makeMove(Coordinate location, BoardState &state,
       if (info.state == lastMoveInfo::Check) {
         lastMoveState = lastMoveInfo::CheckMate;
         std::cout << "Checkmate!!!" << std::endl;
+        score[state.isWhiteTurn] += 1;
       } else {
         lastMoveState = lastMoveInfo::Draw;
+        score[0] += 0.5;
+        score[1] += 0.5;
       }
+      Gameboard::resetScoreTexture();
     }
   }
   return info.success;
@@ -385,7 +409,20 @@ void Gameboard::render() {
     posX = rightSideRenderingInitialPosition;
     posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
     float timeDataDirection = i == 1 ? 1.1 : -1.1;
+    int padding = 5;
 
+    SDL_Rect scoreBoxRect = {posX - padding, posY - padding,
+                             scoreTexture[i].getWidth() + 2 * padding,
+                             scoreTexture[i].getHeight() + 2 * padding};
+    SDL_SetRenderDrawColor(Game::renderer, 118, 150, 86,
+                           255); // green color
+
+    // TODO
+    // Draw rounded rectangles
+    SDL_RenderFillRect(Game::renderer, &scoreBoxRect);
+
+    scoreTexture[i].render(posX, posY);
+    posX += scoreTexture[i].getWidth() + padding;
     playerNamesTexture[i].render(posX, posY);
 
     if ((lastMoveState == lastMoveInfo::CheckMate ||
@@ -459,6 +496,8 @@ void Gameboard::render() {
       pieceTexture.render(&destRect, &srcRect);
     }
   }
+
+  exitButtionTexture.render(&exitButtionRect);
 }
 
 // TODO
@@ -475,6 +514,8 @@ void Gameboard::handleInput(SDL_Event &event) {
 void Gameboard::pause() {}
 void Gameboard::resume() {}
 
+void Gameboard::goToMainMenu() { gameRef->goBackToGameMenu(); }
+
 void clockTickToTime(int clock, int timeInfo[4]) {
   int min, secs;
   min = clock / 60;
@@ -484,4 +525,21 @@ void clockTickToTime(int clock, int timeInfo[4]) {
   timeInfo[1] = min % 10;
   timeInfo[2] = secs / 10;
   timeInfo[3] = secs % 10;
+}
+
+std::string scoreToString(float score) {
+  std::string str;
+  str.clear();
+  int beforePoint = score;
+  if (beforePoint > 99) {
+    beforePoint = 99;
+  }
+  str = std::to_string(beforePoint);
+  str += '.';
+  if ((score - beforePoint) * 2 >= 1) {
+    str += '5';
+  } else {
+    str += '0';
+  }
+  return str;
 }

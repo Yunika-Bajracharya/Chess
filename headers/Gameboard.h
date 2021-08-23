@@ -15,10 +15,16 @@
 
 #include "GameState.h"
 
+#define MOUSECLICKFRAMES 20;
+struct MouseDownInfo {
+  bool isDown;
+  int framesSinceLastMouseDown;
+};
+
 class Gameboard : public GameState {
 public:
-  Gameboard(std::string name1 = "Player 1", std::string name2 = "Player 2",
-            int _startTimeInMinutes = 10);
+  Gameboard(Game *_gameRef, std::string name1 = "Player 1",
+            std::string name2 = "Player 2", int _startTimeInMinutes = 10);
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
@@ -30,20 +36,30 @@ public:
   void handleMouseDown(SDL_Event &event);
   void handleMouseUp(SDL_Event &event);
 
+  bool makeMove(Coordinate location, int promotionID = 0);
+
   void update() override;
   void render() override;
 
   void pause() override;
   void resume() override;
   void loadImg();
-  
+
+  void goToMainMenu();
+
 private:
+  Game *gameRef;
   BoardState state;
   Coordinate boardStartPos; // The top left edge of board
   std::vector<Move> moves;
   std::vector<std::vector<Move>> allMoves;
   Promotion::uiInfo promotionInfo;
   lastMoveInfo::State lastMoveState;
+
+  float score[2];
+  Texture scoreTexture[2];
+  void resetScoreTexture();
+  MouseDownInfo mouseDownInfo;
 
   LastMove lastMove;
   Player *players[2];
@@ -52,17 +68,15 @@ private:
   bool hasPlayedMove[2];
   int startTimeInMinutes;
 
-  SDL_Rect resetButtonRect;
+  SDL_Rect resetButtonRect, exitButtionRect;
   Texture horizontalNotation[8];
   Texture verticalNotation[8];
-
   Texture playerNamesTexture[2]; // Stores the texture of player
-
   Texture resetButtonTexture;
   Texture checkTexture, checkMateTexture, outOfTimeTexture, matchDrawTexture;
   Texture numberTextures[10]; // Stores the textures for numbers 0-9
   Texture wonTexture;
   Texture colonTexture;
-
   Texture pieceTexture; // Stores texture of all pieces
+  Texture exitButtionTexture;
 };

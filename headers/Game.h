@@ -41,6 +41,7 @@ public:
   static SDL_Renderer *renderer;
 
   void createGameBoard(std::string name0, std::string name1);
+  void goBackToGameMenu();
 
 private:
   bool isRunning;

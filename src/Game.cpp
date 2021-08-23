@@ -112,5 +112,9 @@ void Game::createGameBoard(std::string name1, std::string name2) {
   if (name2.length() == 0) {
     name2 += "Player 2";
   }
-  stateMachine.AddState(new Gameboard(name1, name2), true);
+  stateMachine.AddState(new Gameboard(this, name1, name2), true);
+}
+
+void Game::goBackToGameMenu() {
+  stateMachine.AddState(new GameMenu(this), true);
 }
