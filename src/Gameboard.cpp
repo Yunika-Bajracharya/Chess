@@ -34,15 +34,15 @@ void Gameboard::init() {
 
   resetButtonRect.w = resetButtonTexture.getWidth();
   resetButtonRect.h = resetButtonTexture.getHeight();
-  resetButtonRect.x = boardStartPos.j - resetButtonRect.w - BLOCK_WIDTH / 2;
-  resetButtonRect.y = WINDOW_HEIGHT / 2 - resetButtonRect.h / 2;
+  resetButtonRect.x = WINDOW_WIDTH * 0.08;
+  resetButtonRect.y = WINDOW_HEIGHT * 0.65;
 
   exitButtionTexture.queryTexture(exitButtionRect.w, exitButtionRect.h);
-  exitButtionRect.x = WINDOW_WIDTH * 0.05;
-  exitButtionRect.y = WINDOW_HEIGHT * 0.9;
+  exitButtionRect.x = WINDOW_WIDTH * 0.08;
+  exitButtionRect.y = WINDOW_HEIGHT * 0.85;
 
   resignButtonTexture.queryTexture(resignButtonRect.w, resignButtonRect.h);
-  resignButtonRect.x = WINDOW_WIDTH * 0.05;
+  resignButtonRect.x = WINDOW_WIDTH * 0.08;
   resignButtonRect.y = WINDOW_HEIGHT * 0.75;
 
   // Creating Player Name textures
@@ -90,10 +90,9 @@ void Gameboard::loadImg() {
   checkMateTexture.loadFromFile("./assets/checkmate.png");
   matchDrawTexture.loadFromFile("./assets/draw.png");
   outOfTimeTexture.loadFromFile("./assets/timeup.png");
-  exitButtionTexture.loadSentence("Exit", 24, TextureManager::Green);
-  resignButtonTexture.loadSentence("Resign", 24, TextureManager::Red);
-  blackResignTexture.loadSentence("Black Resignes", 28, TextureManager::Red);
-  whiteResignTexture.loadSentence("White Resignes", 28, TextureManager::Red);
+  resignButtonTexture.loadFromFile("./assets/resign.png");
+  blackResignTexture.loadFromFile("./assets/blackResign.png");
+  whiteResignTexture.loadFromFile("./assets/whiteResign.png");
   exitButtionTexture.loadFromFile("./assets/exitGameBoard.png");
 }
 

@@ -4,6 +4,7 @@
 std::map<int, int> PieceValue{{0, 0},   {1, 900}, {2, 300},
                               {3, 300}, {4, 500}, {5, 100}};
 // Engine::EngineDifficulty difficulty = Engine::None;
+
 void Engine::handleFENString(const std::string fenString, BoardState &state) {
   /*
    * Takes a fenstring and Boardstate object as argument
