@@ -11,5 +11,9 @@ public:
 
   static void DrawFillCircle(SDL_Renderer *renderer, int x, int y, int radius);
 
+<<<<<<< HEAD
   static SDL_Color Black, Green, Red;
+=======
+  static SDL_Color Black, Green, darkGreen;
+>>>>>>> ddc9a6e9edb85a868dce7be0f00552da9148e1ce
 };

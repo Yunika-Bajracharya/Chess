@@ -90,10 +90,14 @@ void Gameboard::loadImg() {
   checkMateTexture.loadFromFile("./assets/checkmate.png");
   matchDrawTexture.loadFromFile("./assets/draw.png");
   outOfTimeTexture.loadFromFile("./assets/timeup.png");
+<<<<<<< HEAD
   exitButtionTexture.loadSentence("Exit", 24, TextureManager::Green);
   resignButtonTexture.loadSentence("Resign", 24, TextureManager::Red);
   blackResignTexture.loadSentence("Black Resignes", 28, TextureManager::Red);
   whiteResignTexture.loadSentence("White Resignes", 28, TextureManager::Red);
+=======
+  exitButtionTexture.loadFromFile("./assets/exitGameBoard.png");
+>>>>>>> ddc9a6e9edb85a868dce7be0f00552da9148e1ce
 }
 
 void Gameboard::setBoard() {
@@ -103,9 +107,9 @@ void Gameboard::setBoard() {
   state.players[1] = new Player(PlayerNames[1], false);
   hasPlayedMove[0] = false;
   hasPlayedMove[1] = false;
-
-  scoreTexture[0].loadSentence(scoreToString(score[0]), 30);
-  scoreTexture[1].loadSentence(scoreToString(score[1]), 30);
+  // score
+  scoreTexture[0].loadSentence(scoreToString(score[0]), 30, TextureManager::darkGreen);
+  scoreTexture[1].loadSentence(scoreToString(score[1]), 30, TextureManager::darkGreen);
 
   // Handle FEN string
   Engine::handleFENString(STARTING_FEN, state);
@@ -430,12 +434,12 @@ void Gameboard::render() {
     posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
     float timeDataDirection = i == 1 ? 1.1 : -1.1;
     int padding = 5;
-
+    // displaying score board rectangle
     SDL_Rect scoreBoxRect = {posX - padding, posY - padding,
                              scoreTexture[i].getWidth() + 2 * padding,
                              scoreTexture[i].getHeight() + 2 * padding};
-    SDL_SetRenderDrawColor(Game::renderer, 118, 150, 86,
-                           255); // green color
+    SDL_SetRenderDrawColor(Game::renderer, 238, 238, 210,
+                           255); // cream color
 
     // TODO
     // Draw rounded rectangles

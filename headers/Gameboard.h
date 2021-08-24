@@ -58,7 +58,7 @@ private:
   Promotion::uiInfo promotionInfo;
   lastMoveInfo::State lastMoveState;
 
-  float score[2];
+  float score[2] = {0,0};
   Texture scoreTexture[2];
   void resetScoreTexture();
   MouseDownInfo mouseDownInfo;
