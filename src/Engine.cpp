@@ -1,9 +1,15 @@
 #include "../headers/Engine.h"
+#define MAX_VALUE 10000
 
 std::map<int, int> PieceValue{{0, 0},   {1, 900}, {2, 300},
                               {3, 300}, {4, 500}, {5, 100}};
 // Engine::EngineDifficulty difficulty = Engine::None;
-void Engine::handleFENString(std::string fenString, BoardState &state) {
+void Engine::handleFENString(const std::string fenString, BoardState &state) {
+  /*
+   * Takes a fenstring and Boardstate object as argument
+   * Uses the fenstring to setup the state object
+   */
+
   // First we initalize them into nullptr
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
@@ -121,6 +127,12 @@ void Engine::handleFENString(std::string fenString, BoardState &state) {
 }
 
 void Engine::addPiece(Piece *piece, BoardState &state) {
+  /*
+   * Helper function
+   * Used to add a given piece to a position on the board
+   * Then it adds it to the pieces of the player obejct
+   */
+
   Coordinate c = piece->getCoordinate();
   int index = piece->isWhite() ? 0 : 1;
 
@@ -136,6 +148,12 @@ lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
                                           Promotion::uiInfo &promotionInfo,
                                           Promotion::promotion promotionType) {
 
+  /*
+   * Takes in the destination of piece placement
+   * And makes the move after some checks
+   * Returns info about the move
+   */
+
   for (Move move : moves) {
     if (move.endPos == destination) {
       Coordinate startPos = state.dragPieceLocation;
@@ -147,7 +165,7 @@ lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
 
       Piece *movingPiece = state.getPiece(startPos);
       if (!movingPiece) {
-        // We fked up somewhere
+        // We messed up somewhere
         continue;
       }
 
@@ -167,8 +185,7 @@ lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
         }
       }
 
-      /* We make the move
-       */
+      // We make the move
 
       bool check = placePiece(move, state);
       return {true, check ? lastMoveInfo::Check : lastMoveInfo::None};
@@ -177,6 +194,13 @@ lastMoveInfo Engine::handlePiecePlacement(Coordinate &destination,
   return {false, lastMoveInfo::None};
 }
 bool Engine::placePiece(Move move, BoardState &state) {
+  /*
+   * Places piece directly on the board
+   * without any checks
+   * Use with caution
+   * Returns true if that move caused a check
+   */
+
   Piece *movingPiece = state.getPiece(move.startPos);
   // Moves the piece with no checks
 
@@ -321,6 +345,10 @@ bool Engine::placePiece(Move move, BoardState &state) {
 
 int Engine::generateAllMoves(const BoardState &state,
                              std::vector<std::vector<Move>> &allMoves) {
+  /*
+   * Loops through each piece of the player and generates all the moves
+   * Returns the total number of aailable moves
+   */
 
   int count = 0;
   // Makesure all move is completely clearred
@@ -346,8 +374,12 @@ int Engine::generateAllMoves(const BoardState &state,
   return count;
 }
 
-Move *Engine::generateAIMove(BoardState &state,
+Move *Engine::generateAIMove(const BoardState &state,
                              std::vector<std::vector<Move>> &allMoves) {
+  /*
+   * Used to generate ai moves
+   * Returns the move generated
+   */
   static int callCount = 0;
   Engine::EngineDifficulty difficulty = Engine::Random;
   if (callCount >= 1) {
@@ -374,8 +406,12 @@ Move *Engine::generateAIMove(BoardState &state,
   return nullptr;
 }
 
-Move *Engine::randomAI(BoardState &state,
+Move *Engine::randomAI(const BoardState &state,
                        std::vector<std::vector<Move>> &allMoves) {
+  /*
+   * Randomly picks 1 move out of the available moves
+   */
+
   int moveCount = 0;
   for (std::vector<Move> &moves : allMoves) {
     moveCount += moves.size();
@@ -397,7 +433,7 @@ Move *Engine::randomAI(BoardState &state,
   return nullptr;
 }
 
-Move *Engine::evaluateAI(BoardState &state,
+Move *Engine::evaluateAI(const BoardState &state,
                          std::vector<std::vector<Move>> &allMoves) {
   // Say we are black
 
@@ -408,7 +444,7 @@ Move *Engine::evaluateAI(BoardState &state,
     for (Move &move : moves) {
       BoardState newState = state;
       Engine::placePiece(move, newState);
-      int eval = Engine::miniMax(newState, 3, true, -INFINITY, INFINITY);
+      int eval = Engine::miniMax(newState, 3, true, -MAX_VALUE, MAX_VALUE);
 
       if (eval > maxEval) {
         maxEval = eval;
@@ -422,12 +458,12 @@ Move *Engine::evaluateAI(BoardState &state,
   return maxEvalMove;
 }
 
-int Engine::miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
+int Engine::miniMax(BoardState state, int depth, bool isMaximizing, int alpha,
                     int beta) {
   if (depth == 0) {
     return evaluateState(state);
   }
-  int maxEval = isMaximizing ? -INFINITY : INFINITY;
+  int maxEval = isMaximizing ? -MAX_VALUE : MAX_VALUE;
   // Move *maxEvalMove = nullptr;
 
   std::vector<std::vector<Move>> allMoves;
@@ -449,7 +485,7 @@ int Engine::miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
 
       test = isMaximizing ? (eval >= beta) : (eval <= alpha);
       if (test) {
-        return isMaximizing ? INFINITY : -INFINITY;
+        return isMaximizing ? MAX_VALUE : -MAX_VALUE;
       }
 
       if (isMaximizing) {
@@ -469,6 +505,10 @@ int Engine::miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
 void Engine::getMovelist(const Coordinate &c,
                          std::vector<std::vector<Move>> &allMovesSrc,
                          std::vector<Move> &movesDest) {
+  /*
+   * Extracts a list of moves that can be done by a piece at coordinate value c
+   * Stores it in movesDest
+   */
 
   movesDest.clear();
 
@@ -503,6 +543,9 @@ int Engine::evaluateState(const BoardState &state) {
 }
 
 int piecePositionValue(Piece *p) {
+  /*
+   * Gives a quantifiable value to squares on the board
+   */
   float point = 1;
   int coordinateValue = p->getCoordinate().SquareValue();
 
@@ -510,10 +553,13 @@ int piecePositionValue(Piece *p) {
     point += coordinateValue;
   }
 
-  return point;
+  return 1;
 }
 
 bool Engine::canDirectAttackKing(const BoardState &state) {
+  /*
+   * Retuns true if Any of the enemy piece can direct attact your king
+   */
   bool turn = state.isWhiteTurn;
   int index = turn ? 0 : 1;
   int enemy = !turn ? 0 : 1;

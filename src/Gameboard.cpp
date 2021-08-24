@@ -13,18 +13,18 @@ bool buttonPress(int x, int y, const SDL_Rect &rect);
 std::string scoreToString(float score);
 
 Gameboard::Gameboard(Game *_gameRef, std::string name1, std::string name2,
-                     int _startTimeInMinutes)
+                     int _startTimeInMinutes, bool _useEngine)
     : gameRef(_gameRef), startTimeInMinutes(_startTimeInMinutes) {
   PlayerNames[0] = name1;
   PlayerNames[1] = name2;
   score[0] = score[1] = 0;
+  useEngine = _useEngine;
+  enginePlaysWhite = false;
 }
 
 Gameboard::~Gameboard() { SoundManager::clean(); }
 
 void Gameboard::init() {
-  useEngine = false;
-  enginePlaysWhite = false;
 
   setBoard();
   Gameboard::loadImg();
@@ -41,9 +41,13 @@ void Gameboard::init() {
   exitButtionRect.x = WINDOW_WIDTH * 0.05;
   exitButtionRect.y = WINDOW_HEIGHT * 0.9;
 
+  resignButtonTexture.queryTexture(resignButtonRect.w, resignButtonRect.h);
+  resignButtonRect.x = WINDOW_WIDTH * 0.05;
+  resignButtonRect.y = WINDOW_HEIGHT * 0.75;
+
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
-    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 30);
+    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 28);
   }
 
   // Load piece Textures
@@ -53,9 +57,9 @@ void Gameboard::init() {
     char num[2];
     num[0] = i + ASCII_OFFSET;
     num[1] = '\0';
-    numberTextures[i].loadSentence(num, 30);
+    numberTextures[i].loadSentence(num, 28);
   }
-  colonTexture.loadSentence(":", 30);
+  colonTexture.loadSentence(":", 28);
 
   // load vertical notation textures
   for (int l = 1; l < 9; l++) {
@@ -87,6 +91,9 @@ void Gameboard::loadImg() {
   matchDrawTexture.loadFromFile("./assets/draw.png");
   outOfTimeTexture.loadFromFile("./assets/timeup.png");
   exitButtionTexture.loadSentence("Exit", 24, TextureManager::Green);
+  resignButtonTexture.loadSentence("Resign", 24, TextureManager::Red);
+  blackResignTexture.loadSentence("Black Resignes", 28, TextureManager::Red);
+  whiteResignTexture.loadSentence("White Resignes", 28, TextureManager::Red);
 }
 
 void Gameboard::setBoard() {
@@ -204,6 +211,9 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
     if (buttonPress(event.button.x, event.button.y, exitButtionRect)) {
       Gameboard::goToMainMenu();
       return;
+    }
+    if (buttonPress(event.button.x, event.button.y, resignButtonRect)) {
+      Gameboard::resign();
     }
     if (lastMoveState != lastMoveInfo::None &&
         lastMoveState != lastMoveInfo::Check) {
@@ -436,7 +446,8 @@ void Gameboard::render() {
     playerNamesTexture[i].render(posX, posY);
 
     if ((lastMoveState == lastMoveInfo::CheckMate ||
-         lastMoveState == lastMoveInfo::OutofTime) &&
+         lastMoveState == lastMoveInfo::OutofTime ||
+         lastMoveState == lastMoveInfo::Resign) &&
         state.isWhiteTurn == i) {
       posX += playerNamesTexture[i].getWidth();
       wonTexture.render(posX, posY);
@@ -476,6 +487,13 @@ void Gameboard::render() {
   case lastMoveInfo::Draw: {
     matchDrawTexture.render(posX, posY);
   }
+  case lastMoveInfo::Resign: {
+    if (state.isWhiteTurn) {
+      whiteResignTexture.render(posX, posY);
+    } else {
+      blackResignTexture.render(posX, posY);
+    }
+  }
 
   default:
     break;
@@ -508,6 +526,7 @@ void Gameboard::render() {
   }
 
   exitButtionTexture.render(&exitButtionRect);
+  resignButtonTexture.render(&resignButtonRect);
 }
 
 // TODO
@@ -521,10 +540,13 @@ void Gameboard::handleInput(SDL_Event &event) {
     break;
   }
 }
-void Gameboard::pause() {}
-void Gameboard::resume() {}
 
 void Gameboard::goToMainMenu() { gameRef->goBackToGameMenu(); }
+
+void Gameboard::resign() {
+  lastMoveState = lastMoveInfo::Resign;
+  score[state.isWhiteTurn] += 1;
+}
 
 void Gameboard::engineMove() {
   Move *move = Engine::generateAIMove(state, allMoves);

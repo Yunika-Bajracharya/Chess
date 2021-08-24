@@ -24,7 +24,8 @@ struct MouseDownInfo {
 class Gameboard : public GameState {
 public:
   Gameboard(Game *_gameRef, std::string name1 = "Player 1",
-            std::string name2 = "Player 2", int _startTimeInMinutes = 10);
+            std::string name2 = "Player 2", int _startTimeInMinutes = 10,
+            bool _useEngine = false);
   ~Gameboard() override;
 
   void init() override; // Loads all the textures, creates players, etc
@@ -41,13 +42,12 @@ public:
   void update() override;
   void render() override;
 
-  void pause() override;
-  void resume() override;
   void loadImg();
 
   void engineMove();
 
   void goToMainMenu();
+  void resign();
 
 private:
   Game *gameRef;
@@ -73,15 +73,17 @@ private:
   bool hasPlayedMove[2];
   int startTimeInMinutes;
 
-  SDL_Rect resetButtonRect, exitButtionRect;
+  SDL_Rect resetButtonRect, exitButtionRect, resignButtonRect;
   Texture horizontalNotation[8];
   Texture verticalNotation[8];
   Texture playerNamesTexture[2]; // Stores the texture of player
   Texture resetButtonTexture;
-  Texture checkTexture, checkMateTexture, outOfTimeTexture, matchDrawTexture;
+  Texture checkTexture, checkMateTexture, outOfTimeTexture, matchDrawTexture,
+      blackResignTexture, whiteResignTexture;
   Texture numberTextures[10]; // Stores the textures for numbers 0-9
   Texture wonTexture;
   Texture colonTexture;
   Texture pieceTexture; // Stores texture of all pieces
   Texture exitButtionTexture;
+  Texture resignButtonTexture;
 };

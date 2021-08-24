@@ -149,9 +149,6 @@ void GameMenu::update() {
   count++;
 }
 
-void GameMenu::pause() {}
-void GameMenu::resume() {}
-
 bool buttonPress(int x, int y, const SDL_Rect &rect) {
   if (x > rect.x && y > rect.y && x < rect.x + rect.w && y < rect.y + rect.h) {
     return true;

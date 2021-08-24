@@ -5,6 +5,10 @@
 #define DEPTH 0
 
 void Test::generateAllMoves(int depth, bool first) {
+  /*
+   * Generates all the moves upto a certain depth
+   */
+
   BoardState state;
   std::vector<std::vector<Move>> allMoves;
   std::vector<Move> moves;
@@ -17,6 +21,9 @@ void Test::generateAllMoves(int depth, bool first) {
 }
 
 int Test::getNumberOfMoves(int depth, const BoardState &state, bool first) {
+  /*
+   * Recursively generates all the moves
+   */
   std::vector<std::vector<Move>> allMoves;
   std::vector<Move> moves;
   Engine::generateAllMoves(state, allMoves);

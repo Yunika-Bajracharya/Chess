@@ -15,6 +15,7 @@ Pawn::Pawn(Coordinate pos, bool isColorWhite) : Piece(pos, isColorWhite) {
 
 Pawn::~Pawn() {}
 
+// Uses the panw to create a new Queen/Rook/Knight/Bishop object
 Piece *Pawn::toQueen() { return new Queen(position, isColorWhite); }
 Piece *Pawn::toRook() { return new Rook(position, isColorWhite); }
 Piece *Pawn::toKnight() { return new Knight(position, isColorWhite); }
@@ -23,6 +24,10 @@ Piece *Pawn::toBishop() { return new Bishop(position, isColorWhite); }
 Piece *Pawn::clone() { return new Pawn(*this); }
 
 int Pawn::generateAllMoves(const BoardState &state, std::vector<Move> &moves) {
+  /*
+   * Returns all the moves for a panw
+   * returns the count
+   */
   int direction = isColorWhite ? -1 : 1;
 
   int count = 0;

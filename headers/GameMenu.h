@@ -16,8 +16,6 @@ public:
   void render() override;
   void update() override;
 
-  void pause() override;
-  void resume() override;
   void loadImg();
 
 private:
@@ -31,7 +29,8 @@ private:
   bool displayCursor;
   int count;
 
-  SDL_Rect startButton, exitButton, backdrop,square,squar;
+  SDL_Rect startButton, exitButton, backdrop, square, squar;
   Game *gameRef;
-  Texture startTexture, exitTexture, backdropTexture, squareTexture, squarTexture;
+  Texture startTexture, exitTexture, backdropTexture, squareTexture,
+      squarTexture;
 };
