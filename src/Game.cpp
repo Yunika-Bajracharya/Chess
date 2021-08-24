@@ -105,14 +105,16 @@ void Game::exitGame() { this->isRunning = false; }
 
 bool Game::running() { return isRunning; }
 
-void Game::createGameBoard(std::string name1, std::string name2) {
+void Game::createGameBoard(std::string name1, std::string name2,
+                           int _startTimeInMinutes, bool useEngine) {
   if (name1.length() == 0) {
     name1 += "Player 1";
   }
   if (name2.length() == 0) {
     name2 += "Player 2";
   }
-  stateMachine.AddState(new Gameboard(this, name1, name2), true);
+  stateMachine.AddState(
+      new Gameboard(this, name1, name2, _startTimeInMinutes, useEngine), true);
 }
 
 void Game::goBackToGameMenu() {

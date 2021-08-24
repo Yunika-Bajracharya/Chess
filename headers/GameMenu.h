@@ -17,6 +17,7 @@ public:
   void update() override;
 
   void loadImg();
+  enum TimeIndex { One = 0, Ten, Thirty };
 
 private:
   std::string names[2];
@@ -28,10 +29,13 @@ private:
   bool isNameOneTheFocus;
   bool displayCursor;
   int count;
+  TimeIndex timeIndex;
 
+  SDL_Rect singleButton, twoButton, exitButton, backdrop, square, squar, min,
+      tenmin, thirtymin;
+  Texture singleTexture, twoTexture, exitTexture, backdropTexture,
+      squareTexture, squarTexture;
+  Texture minTexture[2], tenminTexture[2], thirtyminTexture[2];
 
-
-  SDL_Rect singleButton,twoButton, exitButton, backdrop,square,squar,min,tenmin,thirtymin;
   Game *gameRef;
-  Texture singleTexture,twoTexture, exitTexture, backdropTexture, squareTexture, squarTexture,minTexture,tenminTexture,thirtyminTexture;
 };

@@ -383,9 +383,11 @@ Move *Engine::generateAIMove(const BoardState &state,
    */
   static int callCount = 0;
   Engine::EngineDifficulty difficulty = Engine::Random;
+  /*
   if (callCount >= 1) {
     difficulty = Engine::Evaluated;
   }
+  */
 
   callCount++;
   if (difficulty == Engine::None) {

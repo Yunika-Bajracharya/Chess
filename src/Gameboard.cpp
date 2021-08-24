@@ -104,8 +104,10 @@ void Gameboard::setBoard() {
   hasPlayedMove[0] = false;
   hasPlayedMove[1] = false;
   // score
-  scoreTexture[0].loadSentence(scoreToString(score[0]), 30, TextureManager::darkGreen);
-  scoreTexture[1].loadSentence(scoreToString(score[1]), 30, TextureManager::darkGreen);
+  scoreTexture[0].loadSentence(scoreToString(score[0]), 30,
+                               TextureManager::darkGreen);
+  scoreTexture[1].loadSentence(scoreToString(score[1]), 30,
+                               TextureManager::darkGreen);
 
   // Handle FEN string
   Engine::handleFENString(STARTING_FEN, state);
@@ -213,7 +215,9 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       return;
     }
     if (buttonPress(event.button.x, event.button.y, resignButtonRect)) {
-      Gameboard::resign();
+      if (!(lastMoveState == lastMoveInfo::CheckMate ||
+            lastMoveState == lastMoveInfo::Draw))
+        Gameboard::resign();
     }
     if (lastMoveState != lastMoveInfo::None &&
         lastMoveState != lastMoveInfo::Check) {
@@ -526,7 +530,10 @@ void Gameboard::render() {
   }
 
   exitButtionTexture.render(&exitButtionRect);
-  resignButtonTexture.render(&resignButtonRect);
+
+  if (!(lastMoveState == lastMoveInfo::CheckMate ||
+        lastMoveState == lastMoveInfo::Draw))
+    resignButtonTexture.render(&resignButtonRect);
 }
 
 // TODO

@@ -40,7 +40,8 @@ public:
 
   static SDL_Renderer *renderer;
 
-  void createGameBoard(std::string name0, std::string name1);
+  void createGameBoard(std::string name0, std::string name1,
+                       int _startTimeInMinutes = 10, bool _useEngine = false);
   void goBackToGameMenu();
 
 private:
