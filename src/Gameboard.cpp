@@ -90,14 +90,11 @@ void Gameboard::loadImg() {
   checkMateTexture.loadFromFile("./assets/checkmate.png");
   matchDrawTexture.loadFromFile("./assets/draw.png");
   outOfTimeTexture.loadFromFile("./assets/timeup.png");
-<<<<<<< HEAD
   exitButtionTexture.loadSentence("Exit", 24, TextureManager::Green);
   resignButtonTexture.loadSentence("Resign", 24, TextureManager::Red);
   blackResignTexture.loadSentence("Black Resignes", 28, TextureManager::Red);
   whiteResignTexture.loadSentence("White Resignes", 28, TextureManager::Red);
-=======
   exitButtionTexture.loadFromFile("./assets/exitGameBoard.png");
->>>>>>> ddc9a6e9edb85a868dce7be0f00552da9148e1ce
 }
 
 void Gameboard::setBoard() {
