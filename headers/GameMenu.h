@@ -31,7 +31,7 @@ private:
   bool displayCursor;
   int count;
 
-  SDL_Rect startButton, exitButton, backdrop,square,squar;
+  SDL_Rect singleButton,twoButton, exitButton, backdrop,square,squar,min,tenmin,thirtymin;
   Game *gameRef;
-  Texture startTexture, exitTexture, backdropTexture, squareTexture, squarTexture;
+  Texture singleTexture,twoTexture, exitTexture, backdropTexture, squareTexture, squarTexture,minTexture,tenminTexture,thirtyminTexture;
 };

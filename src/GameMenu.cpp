@@ -9,29 +9,41 @@ GameMenu::~GameMenu() {}
 void GameMenu::init() {
   GameMenu::loadImg();
   // Initialize Texture and stuff
-  startTexture.queryTexture(startButton.w, startButton.h);
-  startButton.x = WINDOW_WIDTH / 2 - startButton.w / 2;
-  startButton.y = WINDOW_HEIGHT / 2;
+  singleTexture.queryTexture(singleButton.w, singleButton.h);
+  singleButton.x =  singleButton.w/2 +singleButton.w/5 +50 ;
+  singleButton.y = WINDOW_HEIGHT / 4;
+  twoTexture.queryTexture(twoButton.w, twoButton.h);
+  twoButton.x =  singleButton.x;
+  twoButton.y = WINDOW_HEIGHT / 4+ twoButton.h +twoButton.h/2;
   exitTexture.queryTexture(exitButton.w, exitButton.h);
-  exitButton.x = WINDOW_WIDTH / 2 - exitButton.w / 2;
-  exitButton.y = WINDOW_HEIGHT / 2 + startButton.h / 5 + startButton.h;
+  exitButton.x =  twoButton.w/2 +exitButton.w / 2 + 60;
+  exitButton.y = WINDOW_HEIGHT / 4+ twoButton.h +twoButton.h/2 + twoButton.h +twoButton.h/2;
   backdrop.w = WINDOW_WIDTH;
   backdrop.h = WINDOW_HEIGHT;
   backdrop.x = backdrop.y = 0;
   squareTexture.queryTexture(square.w, square.h);
-  square.x = WINDOW_WIDTH / 2 - square.w / 2;
-  square.y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3;
+  square.x = WINDOW_WIDTH / 2 + square.w / 2-50 ;
+  square.y = WINDOW_HEIGHT / 4 ;
   squarTexture.queryTexture(squar.w, squar.h);
-  squar.x = WINDOW_WIDTH / 2 - squar.w / 2;
-  squar.y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3 + squar.h / 5 + squar.h;
+  squar.x = WINDOW_WIDTH / 2 + squar.w / 2 -50;
+  squar.y = WINDOW_HEIGHT / 4 +twoButton.h +twoButton.h/2 ;
+  minTexture.queryTexture(min.w, min.h);
+  min.x =  square.x +50 ;
+  min.y = tenmin.y =thirtymin.y=exitButton.y;
+  tenminTexture.queryTexture(tenmin.w, tenmin.h);
+  tenmin.x =  square.x +150;
+  thirtyminTexture.queryTexture(thirtymin.w, thirtymin.h);
+  thirtymin.x =  square.x +250;
+  
+  
 
   isNameOneTheFocus = false;
   names[0] = "Player 1";
   names[1] = "Player 2";
 
-  namesBoxRect[0].y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3 + 30;
-  namesBoxRect[1].y = WINDOW_HEIGHT / 3 + 30;
-  namesBoxRect[0].x = namesBoxRect[1].x = WINDOW_WIDTH / 2 + 10;
+  namesBoxRect[0].y = square.y+ 30;
+  namesBoxRect[1].y = squar.y + 30;
+  namesBoxRect[0].x = namesBoxRect[1].x = square.x + 220;
 
   namesPromptTexture[0].loadSentence("Player 1 name: ", 30);
   namesPromptTexture[1].loadSentence("Player 2 name: ", 30);
@@ -44,11 +56,15 @@ void GameMenu::init() {
 }
 
 void GameMenu::loadImg() {
-  startTexture.loadFromFile("./assets/start.png");
+  singleTexture.loadFromFile("./assets/single player.png");
+  twoTexture.loadFromFile("./assets/two players.png");
   exitTexture.loadFromFile("./assets/exit.png");
   backdropTexture.loadFromFile("./assets/backdrop.png");
   squareTexture.loadFromFile("./assets/square.png");
   squarTexture.loadFromFile("./assets/square.png");
+  minTexture.loadFromFile("./assets/1 min.png");
+  tenminTexture.loadFromFile("./assets/10min.png");
+  thirtyminTexture.loadFromFile("./assets/30mins.png");
 }
 
 void GameMenu::handleInput(SDL_Event &event) {
@@ -58,7 +74,7 @@ void GameMenu::handleInput(SDL_Event &event) {
     int x = event.button.x;
     int y = event.button.y;
 
-    if (buttonPress(x, y, startButton)) {
+    if (buttonPress(x, y, twoButton)) {
       gameRef->createGameBoard(names[0], names[1]);
 
     } else if (buttonPress(x, y, exitButton)) {
@@ -99,15 +115,19 @@ void GameMenu::handleInput(SDL_Event &event) {
 }
 
 void GameMenu::render() {
-  int promptCoordinateX = WINDOW_WIDTH / 2 - WINDOW_WIDTH / 7 - 10;
+  int promptCoordinateX = square.x + 10;
 
   SDL_Rect tempRect;
   // Renders the menu
   backdropTexture.render(&backdrop);
-  startTexture.render(&startButton);
+  singleTexture.render(&singleButton);
+  twoTexture.render(&twoButton);
   exitTexture.render(&exitButton);
   squareTexture.render(&square);
   squarTexture.render(&squar);
+  minTexture.render(&min);
+  tenminTexture.render(&tenmin);
+  thirtyminTexture.render(&thirtymin);
 
   // Render name prompts
   for (int i = 0; i < 2; i++) {
