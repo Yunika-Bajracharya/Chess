@@ -1,7 +1,7 @@
 #include "../headers/Engine.h"
 
-std::map<int, int> PieceValue{{0, 0},  {1, 90}, {2, 30},
-                              {3, 30}, {4, 50}, {5, 10}};
+std::map<int, int> PieceValue{{0, 0},   {1, 900}, {2, 300},
+                              {3, 300}, {4, 500}, {5, 100}};
 // Engine::EngineDifficulty difficulty = Engine::None;
 void Engine::handleFENString(std::string fenString, BoardState &state) {
   // First we initalize them into nullptr
@@ -408,7 +408,7 @@ Move *Engine::evaluateAI(BoardState &state,
     for (Move &move : moves) {
       BoardState newState = state;
       Engine::placePiece(move, newState);
-      int eval = Engine::miniMax(newState, 2, true);
+      int eval = Engine::miniMax(newState, 3, true, -INFINITY, INFINITY);
 
       if (eval > maxEval) {
         maxEval = eval;
@@ -427,7 +427,7 @@ int Engine::miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
   if (depth == 0) {
     return evaluateState(state);
   }
-  int maxEval = isMaximizing ? -1000 : 1000;
+  int maxEval = isMaximizing ? -INFINITY : INFINITY;
   // Move *maxEvalMove = nullptr;
 
   std::vector<std::vector<Move>> allMoves;
@@ -440,11 +440,26 @@ int Engine::miniMax(BoardState &state, int depth, bool isMaximizing, int alpha,
     for (Move &move : moves) {
       BoardState newState = state;
       Engine::placePiece(move, newState);
-      int eval = miniMax(newState, depth - 1, !isMaximizing, -alpha, -beta);
+      int eval = miniMax(newState, depth - 1, !isMaximizing, alpha, beta);
 
       bool test = isMaximizing ? (eval > maxEval) : (eval < maxEval);
       if (test) {
         maxEval = eval;
+      }
+
+      test = isMaximizing ? (eval >= beta) : (eval <= alpha);
+      if (test) {
+        return isMaximizing ? INFINITY : -INFINITY;
+      }
+
+      if (isMaximizing) {
+        if (eval > alpha) {
+          alpha = eval;
+        }
+      } else {
+        if (eval < beta) {
+          beta = eval;
+        }
       }
     }
   }
@@ -470,6 +485,7 @@ void Engine::getMovelist(const Coordinate &c,
   }
 }
 
+int piecePositionValue(Piece *p);
 int Engine::evaluateState(const BoardState &state) {
   // Evaluated the position for the person who just played the move
   int value = 0;
@@ -478,10 +494,23 @@ int Engine::evaluateState(const BoardState &state) {
     for (Piece *p : state.players[i]->pieces) {
       if (p->isCaptured())
         continue;
-      value += factor * PieceValue[p->getTextureColumn()];
+      int startingValue = factor * PieceValue[p->getTextureColumn()];
+
+      value += startingValue * piecePositionValue(p);
     }
   }
   return value;
+}
+
+int piecePositionValue(Piece *p) {
+  float point = 1;
+  int coordinateValue = p->getCoordinate().SquareValue();
+
+  if (p->getTextureColumn() == 5) {
+    point += coordinateValue;
+  }
+
+  return point;
 }
 
 bool Engine::canDirectAttackKing(const BoardState &state) {

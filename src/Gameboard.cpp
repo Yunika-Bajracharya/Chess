@@ -23,7 +23,7 @@ Gameboard::Gameboard(Game *_gameRef, std::string name1, std::string name2,
 Gameboard::~Gameboard() { SoundManager::clean(); }
 
 void Gameboard::init() {
-  useEngine = true;
+  useEngine = false;
   enginePlaysWhite = false;
 
   setBoard();
