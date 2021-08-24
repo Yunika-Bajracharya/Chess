@@ -30,6 +30,11 @@ void Piece::moveTo(Coordinate destination) { this->position = destination; }
 
 int Piece::generateLegalMoves(const BoardState &state,
                               std::vector<Move> &moves) {
+  /*
+   * Gets all the moves that can be done by the given piece
+   * Then filters all the legal moves
+   */
+
   std::vector<Move> pseudoLegalMoves;
   generateAllMoves(state, pseudoLegalMoves);
 
@@ -90,6 +95,10 @@ void Piece::getCaptured() { captured = true; }
 bool Piece::isCaptured() { return captured; }
 
 bool Piece::canMoveTo(Coordinate c, const BoardState &state) {
+  /*
+   * Returs true if the piece can move to a square
+   */
+
   if (state.isEmpty(c)) {
     return true;
   } else {
@@ -103,6 +112,7 @@ bool Piece::canMoveTo(Coordinate c, const BoardState &state) {
 
 /*
  *  For class slidePiece
+ *  To encapsulate all the features of a sliding piece (Rook/ Bishop)
  */
 
 SlidePiece::SlidePiece(Coordinate pos, bool isColorWhite)

@@ -12,7 +12,5 @@ Player::~Player() {
   }
 }
 
-// void Player::addPiece(Piece *p) {this->pieces.push_back(p)};
-
 bool Player::isWhite() { return _isWhite; }
 std::string Player::getName() { return Name; }

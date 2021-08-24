@@ -5,6 +5,9 @@ Mix_Chunk *SoundManager::wmove = nullptr;
 bool SoundManager::initialized = false;
 
 void SoundManager::init() {
+  /*
+   * Initializes all the sound assets
+   */
   wmove = Mix_LoadWAV("assets/movew.wav");
   bmove = Mix_LoadWAV("assets/moveb.wav");
 }
@@ -19,6 +22,10 @@ void SoundManager::clean() {
 }
 
 void SoundManager::playSound(SoundManager::SoundType type) {
+  /*
+   * Plays a sound depeneding on the type
+   */
+
   switch (type) {
   case SoundManager::BlackMove: {
     Mix_PlayChannel(-1, bmove, 0);

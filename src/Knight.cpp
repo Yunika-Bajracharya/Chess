@@ -11,6 +11,11 @@ Piece *Knight::clone() { return new Knight(*this); }
 
 int Knight::generateAllMoves(const BoardState &state,
                              std::vector<Move> &moves) {
+  /*
+   * Generates all the moves for the knight
+   * Returns the number of moves
+   */
+
   moves.clear();
   int count = 0;
   for (int i = 0; i < 8; i++) {

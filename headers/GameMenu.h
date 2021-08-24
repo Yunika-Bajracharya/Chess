@@ -16,8 +16,6 @@ public:
   void render() override;
   void update() override;
 
-  void pause() override;
-  void resume() override;
   void loadImg();
 
 private:
@@ -30,6 +28,8 @@ private:
   bool isNameOneTheFocus;
   bool displayCursor;
   int count;
+
+
 
   SDL_Rect singleButton,twoButton, exitButton, backdrop,square,squar,min,tenmin,thirtymin;
   Game *gameRef;

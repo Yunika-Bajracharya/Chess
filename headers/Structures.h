@@ -5,7 +5,7 @@
 #include <vector>
 
 struct lastMoveInfo {
-  enum State { None, Check, CheckMate, Draw, OutofTime };
+  enum State { None, Check, CheckMate, Draw, OutofTime, Resign };
   bool success;
   State state;
 };
@@ -23,6 +23,24 @@ struct Coordinate {
 
   void display() {
     std::cout << "Pos: (" << i << ", " << j << ")" << std::endl;
+  }
+  int SquareValue() {
+    float value = 0;
+    if (!isValidBoardIndex())
+      return value;
+
+    if (i >= 4) {
+      value += 7 - i;
+    } else {
+      value += i;
+    }
+    if (j >= 4) {
+      value += 7 - j;
+    } else {
+      value += j;
+    }
+
+    return value / 2;
   }
 
   bool operator==(Coordinate c) {

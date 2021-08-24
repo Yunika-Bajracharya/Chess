@@ -1,6 +1,11 @@
 #pragma once
 #include "TextureManager.h"
 #include <iostream>
+
+/*
+ * Interface for the SDL_Texture
+ */
+
 class Texture {
 public:
   Texture();

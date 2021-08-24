@@ -3,6 +3,7 @@
 
 SDL_Color TextureManager::Black = {0, 0, 0, 255};
 SDL_Color TextureManager::Green = {0, 255, 0, 255};
+SDL_Color TextureManager::Red = {255, 0, 0, 255};
 SDL_Color TextureManager::darkGreen = {118, 150, 86};
 
 SDL_Texture *TextureManager::loadTexture(const char *filename) {
@@ -19,7 +20,7 @@ SDL_Texture *TextureManager::loadTexture(const char *filename) {
 
 void TextureManager::Draw(SDL_Texture *tex, SDL_Rect &src, SDL_Rect &dest) {
   /*
-   * Drags texture
+   * Draws texture
    */
 
   SDL_RenderCopy(Game::renderer, tex, &src, &dest);

@@ -10,6 +10,11 @@ King::~King() {}
 Piece *King::clone() { return new King(*this); }
 
 int King::generateAllMoves(const BoardState &state, std::vector<Move> &moves) {
+  /*
+   * Generates all the movesfor the king
+   * Returns the number of moves
+   */
+
   for (int i = 0; i < 8; i++) {
     Coordinate tempPos = position;
     tempPos += slideDirectionOffset[i];

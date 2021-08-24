@@ -12,24 +12,20 @@ void clockTickToTime(int clock, int timeInfo[4]);
 bool buttonPress(int x, int y, const SDL_Rect &rect);
 std::string scoreToString(float score);
 
-/*
-bool makeMove(Coordinate location, BoardState &state,
-              std::vector<std::vector<Move>> &allMoves,
-              std::vector<Move> &moves, lastMoveInfo::State &lastMoveState,
-              LastMove &lastMove, Promotion::uiInfo &promotionInfo,
-              int promotionID = 0);
-              */
-
 Gameboard::Gameboard(Game *_gameRef, std::string name1, std::string name2,
-                     int _startTimeInMinutes)
+                     int _startTimeInMinutes, bool _useEngine)
     : gameRef(_gameRef), startTimeInMinutes(_startTimeInMinutes) {
   PlayerNames[0] = name1;
   PlayerNames[1] = name2;
+  score[0] = score[1] = 0;
+  useEngine = _useEngine;
+  enginePlaysWhite = false;
 }
 
 Gameboard::~Gameboard() { SoundManager::clean(); }
 
 void Gameboard::init() {
+
   setBoard();
   Gameboard::loadImg();
   // Some stuff here
@@ -38,16 +34,20 @@ void Gameboard::init() {
 
   resetButtonRect.w = resetButtonTexture.getWidth();
   resetButtonRect.h = resetButtonTexture.getHeight();
-  resetButtonRect.x = boardStartPos.j - resetButtonRect.w - BLOCK_WIDTH / 2;
-  resetButtonRect.y = WINDOW_HEIGHT / 2 - resetButtonRect.h / 2;
+  resetButtonRect.x = WINDOW_WIDTH * 0.08;
+  resetButtonRect.y = WINDOW_HEIGHT * 0.65;
 
   exitButtionTexture.queryTexture(exitButtionRect.w, exitButtionRect.h);
-  exitButtionRect.x = WINDOW_WIDTH * 0.05;
-  exitButtionRect.y = WINDOW_HEIGHT * 0.9;
+  exitButtionRect.x = WINDOW_WIDTH * 0.08;
+  exitButtionRect.y = WINDOW_HEIGHT * 0.85;
+
+  resignButtonTexture.queryTexture(resignButtonRect.w, resignButtonRect.h);
+  resignButtonRect.x = WINDOW_WIDTH * 0.08;
+  resignButtonRect.y = WINDOW_HEIGHT * 0.75;
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
-    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 30);
+    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 28);
   }
 
   // Load piece Textures
@@ -57,9 +57,9 @@ void Gameboard::init() {
     char num[2];
     num[0] = i + ASCII_OFFSET;
     num[1] = '\0';
-    numberTextures[i].loadSentence(num, 30);
+    numberTextures[i].loadSentence(num, 28);
   }
-  colonTexture.loadSentence(":", 30);
+  colonTexture.loadSentence(":", 28);
 
   // load vertical notation textures
   for (int l = 1; l < 9; l++) {
@@ -78,6 +78,8 @@ void Gameboard::init() {
   }
 
   SoundManager::init();
+
+  // Engine::setEngineDifficulty(Engine::Random);
 }
 
 // loading images
@@ -88,6 +90,9 @@ void Gameboard::loadImg() {
   checkMateTexture.loadFromFile("./assets/checkmate.png");
   matchDrawTexture.loadFromFile("./assets/draw.png");
   outOfTimeTexture.loadFromFile("./assets/timeup.png");
+  resignButtonTexture.loadFromFile("./assets/resign.png");
+  blackResignTexture.loadFromFile("./assets/blackResign.png");
+  whiteResignTexture.loadFromFile("./assets/whiteResign.png");
   exitButtionTexture.loadFromFile("./assets/exitGameBoard.png");
 }
 
@@ -111,6 +116,10 @@ void Gameboard::setBoard() {
 
   // Creating Players
   playerTime[0] = playerTime[1] = startTimeInMinutes * 60 * FPS;
+
+  if (enginePlaysWhite && useEngine) {
+    Gameboard::engineMove();
+  }
 }
 
 void Gameboard::resetBoard() {
@@ -124,6 +133,7 @@ void Gameboard::resetBoard() {
   PlayerNames[1] = PlayerNames[0];
   PlayerNames[0] = tempStr;
   resetScoreTexture();
+  enginePlaysWhite = !enginePlaysWhite;
 
   delete state.players[0];
   delete state.players[1];
@@ -161,6 +171,11 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
             makeMove(promotionInfo.location, i + 1);
 
             promotionInfo.promotion = false;
+
+            if (useEngine && enginePlaysWhite == state.isWhiteTurn) {
+              Gameboard::engineMove();
+            }
+            break;
           }
         }
         return;
@@ -197,6 +212,9 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       Gameboard::goToMainMenu();
       return;
     }
+    if (buttonPress(event.button.x, event.button.y, resignButtonRect)) {
+      Gameboard::resign();
+    }
     if (lastMoveState != lastMoveInfo::None &&
         lastMoveState != lastMoveInfo::Check) {
       if (buttonPress(event.button.x, event.button.y, resetButtonRect)) {
@@ -208,8 +226,10 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
     moves.clear();
 
     if (success) {
-
       hasPlayedMove[state.isWhiteTurn] = true;
+      if (useEngine && enginePlaysWhite == state.isWhiteTurn) {
+        Gameboard::engineMove();
+      }
     }
   }
   state.dragPieceId = 0;
@@ -426,7 +446,8 @@ void Gameboard::render() {
     playerNamesTexture[i].render(posX, posY);
 
     if ((lastMoveState == lastMoveInfo::CheckMate ||
-         lastMoveState == lastMoveInfo::OutofTime) &&
+         lastMoveState == lastMoveInfo::OutofTime ||
+         lastMoveState == lastMoveInfo::Resign) &&
         state.isWhiteTurn == i) {
       posX += playerNamesTexture[i].getWidth();
       wonTexture.render(posX, posY);
@@ -466,6 +487,13 @@ void Gameboard::render() {
   case lastMoveInfo::Draw: {
     matchDrawTexture.render(posX, posY);
   }
+  case lastMoveInfo::Resign: {
+    if (state.isWhiteTurn) {
+      whiteResignTexture.render(posX, posY);
+    } else {
+      blackResignTexture.render(posX, posY);
+    }
+  }
 
   default:
     break;
@@ -498,6 +526,7 @@ void Gameboard::render() {
   }
 
   exitButtionTexture.render(&exitButtionRect);
+  resignButtonTexture.render(&resignButtonRect);
 }
 
 // TODO
@@ -511,10 +540,37 @@ void Gameboard::handleInput(SDL_Event &event) {
     break;
   }
 }
-void Gameboard::pause() {}
-void Gameboard::resume() {}
 
 void Gameboard::goToMainMenu() { gameRef->goBackToGameMenu(); }
+
+void Gameboard::resign() {
+  lastMoveState = lastMoveInfo::Resign;
+  score[state.isWhiteTurn] += 1;
+}
+
+void Gameboard::engineMove() {
+  Move *move = Engine::generateAIMove(state, allMoves);
+  if (!move) {
+    return;
+  }
+  bool check = Engine::placePiece(*move, state);
+  lastMoveState = check ? lastMoveInfo::Check : lastMoveInfo::None;
+
+  int count = Engine::generateAllMoves(state, allMoves);
+  if (count == 0) {
+    if (check) {
+      lastMoveState = lastMoveInfo::CheckMate;
+    } else {
+      lastMoveState = lastMoveInfo::Draw;
+    }
+  }
+  lastMove.made = true;
+  lastMove.startPos = move->startPos;
+  lastMove.endPos = move->endPos;
+
+  delete move;
+  return;
+}
 
 void clockTickToTime(int clock, int timeInfo[4]) {
   int min, secs;
