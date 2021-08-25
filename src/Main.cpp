@@ -1,6 +1,5 @@
 #include "../headers/Game.h"
 #include "../headers/Test.h"
-#include <chrono>
 
 Game *game = nullptr;
 int main(int argc, char *argv[]) {
@@ -35,23 +34,7 @@ int main(int argc, char *argv[]) {
 
   if (argc == 2) {
     Test t;
-    using std::chrono::duration;
-    using std::chrono::duration_cast;
-    using std::chrono::high_resolution_clock;
-    using std::chrono::milliseconds;
-
-    for (int i = 0; i < 5; i++) {
-      std::cout << "Depth: " << i + 1 << std::endl;
-      std::cout << "Number of Positions: ";
-
-      auto t1 = high_resolution_clock::now();
-      t.generateAllMoves(i, false);
-      auto t2 = high_resolution_clock::now();
-
-      auto ms_int = duration_cast<milliseconds>(t2 - t1);
-
-      std::cout << "Time taken: " << ms_int.count() << " ms" << std::endl;
-    }
+    t.standardPerft();
   }
   if (argc == 3) {
     Test t;

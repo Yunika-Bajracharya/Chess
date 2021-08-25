@@ -123,9 +123,6 @@ void Gameboard::setBoard() {
   if (enginePlaysWhite && useEngine) {
     Gameboard::engineMove();
   }
-  mouseDownInfo.isDown = false;
-  mouseDownInfo.framesSinceLastMouseDown = 0;
-  mouseDownInfo.moveSelect = false;
 }
 
 void Gameboard::resetBoard() {
@@ -187,22 +184,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
         }
         return;
       }
-      if (mouseDownInfo.moveSelect) {
-        bool success = makeMove(location);
-        moves.clear();
 
-        mouseDownInfo.moveSelect = false;
-        mouseDownInfo.framesSinceLastMouseDown = 0;
-        mouseDownInfo.isDown = false;
-
-        if (success) {
-          hasPlayedMove[state.isWhiteTurn] = true;
-          if (useEngine && enginePlaysWhite == state.isWhiteTurn) {
-            Gameboard::engineMove();
-          }
-        }
-        return;
-      }
       Piece *piece = state.getPiece(location);
       if (piece) {
 
@@ -210,10 +192,6 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
         if (piece->isWhite() != state.isWhiteTurn) {
           return;
         }
-
-        mouseDownInfo.isDown = true;
-        mouseDownInfo.framesSinceLastMouseDown = 0;
-        mouseDownInfo.moveSelect = false;
 
         state.dragPieceId = piece->getID();
         state.dragPieceLocation = location;
@@ -249,13 +227,6 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       }
       return;
     }
-    if (mouseDownInfo.framesSinceLastMouseDown < 10 &&
-        location == state.dragPieceLocation) {
-      mouseDownInfo.isDown = false;
-      mouseDownInfo.moveSelect = true;
-      return;
-    }
-
     bool success = makeMove(location);
     moves.clear();
 
@@ -315,10 +286,8 @@ void Gameboard::update() {
     if (playerTime[!state.isWhiteTurn] < 0) {
       lastMoveState = lastMoveInfo::OutofTime;
       playerTime[!state.isWhiteTurn] = 0;
+      score[0] += 1;
     }
-  }
-  if (mouseDownInfo.isDown) {
-    mouseDownInfo.framesSinceLastMouseDown++;
   }
 }
 
@@ -465,7 +434,7 @@ void Gameboard::render() {
   for (int i = 0; i < 2; i++) {
     posX = rightSideRenderingInitialPosition;
     // if yes for white, if not for black
-    posY = (i == 0) ? 0.91 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT; 
+    posY = (i == 0) ? 0.91 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
     float timeDataDirection = i == 1 ? 1.1 : -1.1;
     playerNamesTexture[i].render(posX, posY);
 
@@ -474,7 +443,7 @@ void Gameboard::render() {
          lastMoveState == lastMoveInfo::Resign) &&
         state.isWhiteTurn == i) {
       posX += playerNamesTexture[i].getWidth();
-      posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT; 
+      posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
       wonTexture.render(posX, posY);
     }
 
@@ -496,15 +465,15 @@ void Gameboard::render() {
     // display score board
     posX = WINDOW_WIDTH * 0.06;
     posY = WINDOW_HEIGHT * 0.05;
-    scoreboardTexture.render(posX,posY);
+    scoreboardTexture.render(posX, posY);
 
-    for (int i = 0 ; i < 2; i++) {
-      
-      //display score texture
+    for (int i = 0; i < 2; i++) {
+
+      // display score texture
       posX = (i == 0) ? 0.082 * WINDOW_WIDTH : 0.16 * WINDOW_WIDTH;
       posY = WINDOW_HEIGHT * 0.18;
       scoreTexture[i].render(posX, posY);
-      
+
       // display player names in score board
       posX = (i == 0) ? 0.072 * WINDOW_WIDTH : 0.148 * WINDOW_WIDTH;
       posY = WINDOW_HEIGHT * 0.13;
@@ -576,7 +545,6 @@ void Gameboard::render() {
     resignButtonTexture.render(&resignButtonRect);
 }
 
-// TODO
 void Gameboard::handleInput(SDL_Event &event) {
   switch (event.type) {
   case SDL_MOUSEBUTTONDOWN:

@@ -227,7 +227,12 @@ bool Engine::placePiece(Move move, BoardState &state) {
     if (destinationPiece->getTextureColumn() == 4) {
       int colorOffset = destinationPiece->isWhite() ? 0 : 2;
       int positionOffset = destinationPiece->getCoordinate().j == 0 ? 1 : 0;
-      state.CastleAvailability[colorOffset + positionOffset] = false;
+      if ((destinationPiece->getCoordinate().i == 0 ||
+           destinationPiece->getCoordinate().i == 7) &&
+          (destinationPiece->getCoordinate().j == 0 ||
+           destinationPiece->getCoordinate().j == 7)) {
+        state.CastleAvailability[colorOffset + positionOffset] = false;
+      }
     }
   }
 
@@ -371,7 +376,6 @@ int Engine::generateAllMoves(const BoardState &state,
     moves.clear();
   }
 
-  // std::cout << evaluateState(state) << std::endl;
   return count;
 }
 

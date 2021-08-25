@@ -16,11 +16,6 @@
 #include "GameState.h"
 
 #define MOUSECLICKFRAMES 20;
-struct MouseDownInfo {
-  bool isDown;
-  int framesSinceLastMouseDown;
-  bool moveSelect;
-};
 
 class Gameboard : public GameState {
 public:
@@ -62,7 +57,6 @@ private:
   float score[2] = {0, 0};
   Texture scoreTexture[2];
   void resetScoreTexture();
-  MouseDownInfo mouseDownInfo;
 
   bool useEngine;
   bool enginePlaysWhite;

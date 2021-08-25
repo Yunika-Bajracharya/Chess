@@ -1,8 +1,29 @@
 #include "../headers/Test.h"
+#include <chrono>
 
 #define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//#define NEW_FEN "rnbqkbnr/ppp1pppp/8/3N4/8/8/PPPPPPPP/R1BQKBNR b KQkq - 0 1"
-#define DEPTH 0
+#define NEW_FEN                                                                \
+  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"
+
+void Test::standardPerft() {
+  using std::chrono::duration;
+  using std::chrono::duration_cast;
+  using std::chrono::high_resolution_clock;
+  using std::chrono::milliseconds;
+
+  for (int i = 0; i < 5; i++) {
+    std::cout << "Depth: " << i + 1 << std::endl;
+    std::cout << "Number of Positions: ";
+
+    auto t1 = high_resolution_clock::now();
+    generateAllMoves(i, false);
+    auto t2 = high_resolution_clock::now();
+
+    auto ms_int = duration_cast<milliseconds>(t2 - t1);
+
+    std::cout << "Time taken: " << ms_int.count() << " ms" << std::endl;
+  }
+}
 
 void Test::generateAllMoves(int depth, bool first) {
   /*
@@ -28,6 +49,7 @@ int Test::getNumberOfMoves(int depth, const BoardState &state, bool first) {
   std::vector<Move> moves;
   Engine::generateAllMoves(state, allMoves);
 
+  // int loops = 0;
   int count = 0;
   for (std::vector<Move> &moveList : allMoves) {
     for (Move &move : moveList) {
@@ -42,13 +64,25 @@ int Test::getNumberOfMoves(int depth, const BoardState &state, bool first) {
           std::cout << 1 << std::endl;
         }
       } else {
-        int num = getNumberOfMoves(depth - 1, s, false);
+        int num = 0;
+        /*
+        if (loops == 2) {
+          std::cout << "---" << std::endl;
+          num = getNumberOfMoves(depth - 1, s, true);
+          std::cout << "---" << std::endl;
+        } else {
+          num = getNumberOfMoves(depth - 1, s, false);
+        }
+        */
+        num = getNumberOfMoves(depth - 1, s, false);
+
         count += num;
         if (first) {
           move.display();
           std::cout << num << std::endl;
         }
       }
+      // loops++;
     }
   }
 
