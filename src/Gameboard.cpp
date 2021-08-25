@@ -28,7 +28,7 @@ void Gameboard::init() {
 
   setBoard();
   Gameboard::loadImg();
-  // Some stuff here
+  // reset, exit and resign button
   boardStartPos.j = WINDOW_WIDTH / 2 - 4 * BLOCK_WIDTH;
   boardStartPos.i = WINDOW_HEIGHT / 2 - 4 * BLOCK_WIDTH;
 
@@ -47,7 +47,7 @@ void Gameboard::init() {
 
   // Creating Player Name textures
   for (int i = 0; i < 2; i++) {
-    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 28);
+    playerNamesTexture[i].loadSentence(state.players[i]->Name.c_str(), 21);
   }
 
   // Load piece Textures
@@ -94,6 +94,7 @@ void Gameboard::loadImg() {
   blackResignTexture.loadFromFile("./assets/blackResign.png");
   whiteResignTexture.loadFromFile("./assets/whiteResign.png");
   exitButtionTexture.loadFromFile("./assets/exitGameBoard.png");
+  scoreboardTexture.loadFromFile("./assets/scoreboard.png");
 }
 
 void Gameboard::setBoard() {
@@ -103,7 +104,7 @@ void Gameboard::setBoard() {
   state.players[1] = new Player(PlayerNames[1], false);
   hasPlayedMove[0] = false;
   hasPlayedMove[1] = false;
-  // score
+  // load score texture
   scoreTexture[0].loadSentence(scoreToString(score[0]), 30,
                                TextureManager::darkGreen);
   scoreTexture[1].loadSentence(scoreToString(score[1]), 30,
@@ -125,7 +126,7 @@ void Gameboard::setBoard() {
 }
 
 void Gameboard::resetBoard() {
-  // We swap the names, namesTexture and scores
+  // We swap the names, namesTexture and score texture after game is reset
   std::string tempStr;
   int tempInt;
   tempInt = score[1];
@@ -142,10 +143,11 @@ void Gameboard::resetBoard() {
   setBoard();
 }
 void Gameboard::resetScoreTexture() {
-  playerNamesTexture[0].loadSentence(PlayerNames[0], 30);
-  playerNamesTexture[1].loadSentence(PlayerNames[1], 30);
+  playerNamesTexture[0].loadSentence(PlayerNames[0], 21);
+  playerNamesTexture[1].loadSentence(PlayerNames[1], 21);
 }
 
+// when mouse is clicked
 void Gameboard::handleMouseDown(SDL_Event &event) {
   // Extract Location
   int x = event.button.x - boardStartPos.j;
@@ -203,6 +205,7 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
   }
 }
 
+// when unclicking the mouse
 void Gameboard::handleMouseUp(SDL_Event &event) {
   // Extract loaction
   int x = event.button.x - boardStartPos.j;
@@ -431,22 +434,9 @@ void Gameboard::render() {
   // Render Player Names
   for (int i = 0; i < 2; i++) {
     posX = rightSideRenderingInitialPosition;
-    posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT;
+    // if yes for white, if not for black
+    posY = (i == 0) ? 0.91 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT; 
     float timeDataDirection = i == 1 ? 1.1 : -1.1;
-    int padding = 5;
-    // displaying score board rectangle
-    SDL_Rect scoreBoxRect = {posX - padding, posY - padding,
-                             scoreTexture[i].getWidth() + 2 * padding,
-                             scoreTexture[i].getHeight() + 2 * padding};
-    SDL_SetRenderDrawColor(Game::renderer, 238, 238, 210,
-                           255); // cream color
-
-    // TODO
-    // Draw rounded rectangles
-    SDL_RenderFillRect(Game::renderer, &scoreBoxRect);
-
-    scoreTexture[i].render(posX, posY);
-    posX += scoreTexture[i].getWidth() + padding;
     playerNamesTexture[i].render(posX, posY);
 
     if ((lastMoveState == lastMoveInfo::CheckMate ||
@@ -454,8 +444,10 @@ void Gameboard::render() {
          lastMoveState == lastMoveInfo::Resign) &&
         state.isWhiteTurn == i) {
       posX += playerNamesTexture[i].getWidth();
+      posY = (i == 0) ? 0.9 * WINDOW_HEIGHT : 0.05 * WINDOW_HEIGHT; 
       wonTexture.render(posX, posY);
     }
+
     // Display Time
     posX = rightSideRenderingInitialPosition;
     posY += playerNamesTexture[i].getHeight() * timeDataDirection;
@@ -469,6 +461,24 @@ void Gameboard::render() {
         colonTexture.render(posX, posY);
         posX += colonTexture.getWidth();
       }
+    }
+
+    // display score board
+    posX = WINDOW_WIDTH * 0.06;
+    posY = WINDOW_HEIGHT * 0.05;
+    scoreboardTexture.render(posX,posY);
+
+    for (int i = 0 ; i < 2; i++) {
+      
+      //display score texture
+      posX = (i == 0) ? 0.082 * WINDOW_WIDTH : 0.16 * WINDOW_WIDTH;
+      posY = WINDOW_HEIGHT * 0.18;
+      scoreTexture[i].render(posX, posY);
+      
+      // display player names in score board
+      posX = (i == 0) ? 0.072 * WINDOW_WIDTH : 0.148 * WINDOW_WIDTH;
+      posY = WINDOW_HEIGHT * 0.13;
+      playerNamesTexture[i].render(posX, posY);
     }
   }
 

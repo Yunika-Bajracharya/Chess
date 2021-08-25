@@ -86,4 +86,5 @@ private:
   Texture pieceTexture; // Stores texture of all pieces
   Texture exitButtionTexture;
   Texture resignButtonTexture;
+  Texture scoreboardTexture;
 };
