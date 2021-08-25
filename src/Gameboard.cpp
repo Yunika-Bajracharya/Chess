@@ -128,7 +128,7 @@ void Gameboard::setBoard() {
 void Gameboard::resetBoard() {
   // We swap the names, namesTexture and score texture after game is reset
   std::string tempStr;
-  int tempInt;
+  float tempInt;
   tempInt = score[1];
   score[1] = score[0];
   score[0] = tempInt;
@@ -493,12 +493,12 @@ void Gameboard::render() {
     break;
   }
   case lastMoveInfo::Check: {
-
     checkTexture.render(posX, posY);
     break;
   }
   case lastMoveInfo::Draw: {
     matchDrawTexture.render(posX, posY);
+    break;
   }
   case lastMoveInfo::Resign: {
     if (state.isWhiteTurn) {
@@ -506,6 +506,7 @@ void Gameboard::render() {
     } else {
       blackResignTexture.render(posX, posY);
     }
+    break;
   }
 
   default:
