@@ -19,6 +19,7 @@
 struct MouseDownInfo {
   bool isDown;
   int framesSinceLastMouseDown;
+  bool moveSelect;
 };
 
 class Gameboard : public GameState {
@@ -58,7 +59,7 @@ private:
   Promotion::uiInfo promotionInfo;
   lastMoveInfo::State lastMoveState;
 
-  float score[2] = {0,0};
+  float score[2] = {0, 0};
   Texture scoreTexture[2];
   void resetScoreTexture();
   MouseDownInfo mouseDownInfo;

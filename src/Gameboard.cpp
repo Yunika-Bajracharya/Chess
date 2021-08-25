@@ -122,6 +122,9 @@ void Gameboard::setBoard() {
   if (enginePlaysWhite && useEngine) {
     Gameboard::engineMove();
   }
+  mouseDownInfo.isDown = false;
+  mouseDownInfo.framesSinceLastMouseDown = 0;
+  mouseDownInfo.moveSelect = false;
 }
 
 void Gameboard::resetBoard() {
@@ -182,8 +185,22 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
         }
         return;
       }
+      if (mouseDownInfo.moveSelect) {
+        bool success = makeMove(location);
+        moves.clear();
 
-      // location.display();
+        mouseDownInfo.moveSelect = false;
+        mouseDownInfo.framesSinceLastMouseDown = 0;
+        mouseDownInfo.isDown = false;
+
+        if (success) {
+          hasPlayedMove[state.isWhiteTurn] = true;
+          if (useEngine && enginePlaysWhite == state.isWhiteTurn) {
+            Gameboard::engineMove();
+          }
+        }
+        return;
+      }
       Piece *piece = state.getPiece(location);
       if (piece) {
 
@@ -192,9 +209,12 @@ void Gameboard::handleMouseDown(SDL_Event &event) {
           return;
         }
 
+        mouseDownInfo.isDown = true;
+        mouseDownInfo.framesSinceLastMouseDown = 0;
+        mouseDownInfo.moveSelect = false;
+
         state.dragPieceId = piece->getID();
         state.dragPieceLocation = location;
-        // piece->generateLegalMoves(state, moves);
         Engine::getMovelist(location, allMoves, moves);
       }
     }
@@ -226,6 +246,13 @@ void Gameboard::handleMouseUp(SDL_Event &event) {
       }
       return;
     }
+    if (mouseDownInfo.framesSinceLastMouseDown < 10 &&
+        location == state.dragPieceLocation) {
+      mouseDownInfo.isDown = false;
+      mouseDownInfo.moveSelect = true;
+      return;
+    }
+
     bool success = makeMove(location);
     moves.clear();
 
@@ -286,6 +313,9 @@ void Gameboard::update() {
       lastMoveState = lastMoveInfo::OutofTime;
       playerTime[!state.isWhiteTurn] = 0;
     }
+  }
+  if (mouseDownInfo.isDown) {
+    mouseDownInfo.framesSinceLastMouseDown++;
   }
 }
 
