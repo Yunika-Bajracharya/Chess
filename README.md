@@ -11,7 +11,7 @@ Click on the image below for set up and usage instructions!
 <p align="left"><a href = "https://github.com/Yunika-Bajracharya/Chess/blob/main/installation.md">
 <img src = "./readme_assets/setup_installation.png" width="400"></a></p>
 
-### [Project Report](https://github.com/Yunika-Bajracharya/Chess/blob/main/project_report.pdf)
+### [Project Report](https://github.com/Yunika-Bajracharya/Chess/blob/main/Project_Report.pdf)
 
 ### Developers
 1. Suban Shrestha 076BCT082 ([@suban244](https://github.com/suban244))
