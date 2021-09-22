@@ -1,5 +1,5 @@
 # Chess
-#### A classic Chess game with C++ and SDL2 as a part of programming project of 2nd year, 3rd semester on object oriented Programming.
+A classic Chess game with C++ and SDL2 as a part of programming project of 2nd year, 3rd semester on Object Oriented Programming.
 
 ### Dependencies
 * SDL2
